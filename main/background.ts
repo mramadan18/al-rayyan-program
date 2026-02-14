@@ -18,7 +18,8 @@ if (!gotTheLock) {
   if (isProd) {
     serve({ directory: "app" });
   } else {
-    app.setPath("userData", `${app.getPath("userData")} (development)`);
+    const userDataPath = app.getPath("userData");
+    app.setPath("userData", userDataPath + " (development)");
   }
 
   const startApp = async () => {

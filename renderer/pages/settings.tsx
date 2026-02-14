@@ -2,11 +2,50 @@ import { Monitor, Bell, MapPin } from "lucide-react";
 import { PageLayout } from "@/components/layout/PageLayout";
 import { SettingsSection } from "@/components/settings/SettingsSection";
 import { AppearanceToggle } from "@/components/settings/AppearanceToggle";
-import { Switch } from "@/components/shared/Switch";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
+import { useState, useEffect } from "react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import { useTheme } from "next-themes";
 
 export default function SettingsPage() {
+  const { theme, setTheme } = useTheme();
+  const [locationSettings, setLocationSettings] = useState({
+    autoLocation: true,
+    calculationMethod: "EGYPT",
+    juristicMethod: "SHAFI",
+  });
+
+  useEffect(() => {
+    const loadSettings = async () => {
+      try {
+        const saved = await window.ipc.invoke("store-get", "location-settings");
+        if (saved) {
+          setLocationSettings(saved as typeof locationSettings);
+        }
+      } catch (error) {
+        console.error("Error loading settings:", error);
+      }
+    };
+    loadSettings();
+  }, []);
+
+  const handleSettingChange = (
+    key: keyof typeof locationSettings,
+    value: any,
+  ) => {
+    const newSettings = { ...locationSettings, [key]: value };
+    setLocationSettings(newSettings);
+    window.ipc.invoke("store-set", "location-settings", newSettings);
+  };
+
   return (
     <PageLayout title="الإعدادات">
       <div className="grid gap-6">
@@ -23,24 +62,67 @@ export default function SettingsPage() {
                 استخدام GPS لتحديد المدينة الحالية
               </p>
             </div>
-            <Switch id="auto-loc" defaultChecked />
+            <Switch
+              id="auto-loc"
+              checked={locationSettings.autoLocation}
+              onCheckedChange={(value) =>
+                handleSettingChange("autoLocation", value)
+              }
+            />
           </div>
           <Separator />
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>طريقة الحساب</Label>
-              <select className="w-full p-2 rounded-md border bg-background text-sm">
-                <option>الهيئة المصرية العامة للمساحة</option>
-                <option>أم القرى - مكة المكرمة</option>
-                <option>رابطة العالم الإسلامي</option>
-              </select>
+              <Select
+                value={locationSettings.calculationMethod}
+                onValueChange={(value) =>
+                  handleSettingChange("calculationMethod", value)
+                }
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="اختر طريقة الحساب" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="EGYPT">
+                    الهيئة المصرية العامة للمساحة
+                  </SelectItem>
+                  <SelectItem value="UMM_AL_QURA">
+                    أم القرى - مكة المكرمة
+                  </SelectItem>
+                  <SelectItem value="MWL">رابطة العالم الإسلامي</SelectItem>
+                  <SelectItem value="KARACHI">
+                    كراتشي (جامعة العلوم الإسلامية)
+                  </SelectItem>
+                  <SelectItem value="NORTH_AMERICA">
+                    أمريكا الشمالية (ISNA)
+                  </SelectItem>
+                  <SelectItem value="DUBAI">دبي</SelectItem>
+                  <SelectItem value="KUWAIT">الكويت</SelectItem>
+                  <SelectItem value="QATAR">قطر</SelectItem>
+                  <SelectItem value="SINGAPORE">سنغافورة</SelectItem>
+                  <SelectItem value="TURKEY">تركيا</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             <div className="space-y-2">
               <Label>المذهب الفقهي (العصر)</Label>
-              <select className="w-full p-2 rounded-md border bg-background text-sm">
-                <option>الجمهور (شافعي، مالكي، حنبلي)</option>
-                <option>الحنفي</option>
-              </select>
+              <Select
+                value={locationSettings.juristicMethod}
+                onValueChange={(value) =>
+                  handleSettingChange("juristicMethod", value)
+                }
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="اختر المذهب" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="SHAFI">
+                    الجمهور (شافعي، مالكي، حنبلي)
+                  </SelectItem>
+                  <SelectItem value="HANAFI">الحنفي</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
         </SettingsSection>
@@ -74,11 +156,10 @@ export default function SettingsPage() {
           ))}
         </SettingsSection>
 
-        {/* Appearance */}
         <SettingsSection title="المظهر" icon={Monitor}>
           <AppearanceToggle
-            currentTheme="light"
-            onThemeChange={(theme) => console.log(`Theme changed to ${theme}`)}
+            currentTheme={(theme as any) || "system"}
+            onThemeChange={(t) => setTheme(t)}
           />
         </SettingsSection>
       </div>
