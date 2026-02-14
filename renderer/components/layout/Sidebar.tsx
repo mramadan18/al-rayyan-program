@@ -1,14 +1,25 @@
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { Home, BookOpen, Scroll, LayoutGrid, Settings } from "lucide-react";
+import {
+  Home,
+  BookOpen,
+  Scroll,
+  LayoutGrid,
+  Settings,
+  Radio,
+  Moon,
+  Calculator,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
 const NAV_ITEMS = [
   { label: "الرئيسية", icon: Home, href: "/home" },
   { label: "المصحف", icon: BookOpen, href: "/quran" },
+  { label: "الإذاعة", icon: Radio, href: "/radio" }, // New Radio Page
+  { label: "رمضان", icon: Moon, href: "/ramadan" }, // New Ramadan Page
+  { label: "الزكاة", icon: Calculator, href: "/zakat" }, // New Zakat Page
   { label: "الأذكار", icon: Scroll, href: "/azkar" },
-  { label: "المرافق", icon: LayoutGrid, href: "/features" },
   { label: "الإعدادات", icon: Settings, href: "/settings" },
 ];
 
