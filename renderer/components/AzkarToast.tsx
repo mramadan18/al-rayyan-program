@@ -15,7 +15,7 @@ export function showAzkarToast({
 }: AzkarToastProps) {
   toast.custom(
     (t) => (
-      <div className="bg-slate-900 border-r-4 border-amber-500 rounded-lg shadow-xl p-4 w-[350px] flex gap-4 items-start relative overflow-hidden dir-rtl">
+      <div className="bg-slate-900 border-r-4 border-amber-500 rounded-lg shadow-xl p-4 w-[350px] flex gap-4 items-start relative overflow-hidden">
         {/* Decorative Icon */}
         <div className="bg-amber-500/10 p-2 rounded-full mt-1">
           <Moon className="w-5 h-5 text-amber-500" />

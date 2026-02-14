@@ -1,10 +1,9 @@
-import React from "react";
 import Head from "next/head";
 
 // Minimal widget window
 export default function WidgetPage() {
   return (
-    <React.Fragment>
+    <>
       <Head>
         <title>Al-Rayyan Widget</title>
       </Head>
@@ -34,6 +33,6 @@ export default function WidgetPage() {
           -webkit-app-region: drag;
         }
       `}</style>
-    </React.Fragment>
+    </>
   );
 }
