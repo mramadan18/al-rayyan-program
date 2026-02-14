@@ -29,22 +29,16 @@ export function ZakatCalculator() {
   // Zakat Al-Maal State
   const [cash, setCash] = useState("");
   const [gold24, setGold24] = useState("");
-  const [silver, setSilver] = useState("");
 
   // Zakat Al-Fitr State
   const [familyMembers, setFamilyMembers] = useState("");
-  const FITR_AMOUNT_PER_PERSON = 15; // Example amount
+  const FITR_AMOUNT_PER_PERSON = 35; // Example amount (EGP/Neutral)
 
   const calculateMaal = () => {
     // Simple logic for demonstration (2.5%)
     const cashVal = parseFloat(cash) || 0;
     const result = cashVal * 0.025;
     setTotalZakat(result);
-  };
-
-  const calculateFitr = () => {
-    const members = parseInt(familyMembers) || 0;
-    setTotalZakat(members * FITR_AMOUNT_PER_PERSON);
   };
 
   const handleCopy = () => {
@@ -55,18 +49,18 @@ export function ZakatCalculator() {
 
   return (
     <div className="w-full max-w-2xl mx-auto p-4">
-      <Card className="bg-slate-900 border-slate-800 shadow-2xl">
+      <Card className="bg-card border-border shadow-xl">
         <CardHeader>
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-lg bg-amber-500/10 flex items-center justify-center border border-amber-500/20">
               <Calculator className="w-5 h-5 text-amber-500" />
             </div>
             <div>
-              <CardTitle className="text-xl text-slate-100">
-                Zakat Calculator
+              <CardTitle className="text-xl text-foreground">
+                حاسبة الزكاة
               </CardTitle>
-              <CardDescription className="text-slate-400">
-                Calculate your obligations accurately
+              <CardDescription className="text-muted-foreground">
+                احسب زكاتك بدقة وسهولة
               </CardDescription>
             </div>
           </div>
@@ -78,18 +72,18 @@ export function ZakatCalculator() {
             className="w-full"
             onValueChange={() => setTotalZakat(0)}
           >
-            <TabsList className="grid w-full grid-cols-2 bg-slate-800 mb-6">
+            <TabsList className="grid w-full grid-cols-2 bg-muted mb-6">
               <TabsTrigger
                 value="maal"
-                className="data-[state=active]:bg-amber-500 data-[state=active]:text-slate-950"
+                className="data-[state=active]:bg-amber-500 data-[state=active]:text-white"
               >
-                Zakat Al-Maal
+                زكاة المال
               </TabsTrigger>
               <TabsTrigger
                 value="fitr"
-                className="data-[state=active]:bg-amber-500 data-[state=active]:text-slate-950"
+                className="data-[state=active]:bg-amber-500 data-[state=active]:text-white"
               >
-                Zakat Al-Fitr
+                زكاة الفطر
               </TabsTrigger>
             </TabsList>
 
@@ -97,48 +91,50 @@ export function ZakatCalculator() {
             <TabsContent value="maal" className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="cash" className="text-slate-300">
-                    Cash Amount
+                  <Label htmlFor="cash" className="text-foreground">
+                    إجمالي المبلغ النقدي
                   </Label>
                   <div className="relative">
-                    <DollarSign className="absolute left-3 top-2.5 h-4 w-4 text-slate-500" />
+                    <DollarSign className="absolute right-3 top-2.5 h-4 w-4 text-muted-foreground" />
                     <Input
                       id="cash"
                       placeholder="0.00"
-                      className="pl-9 bg-slate-950 border-slate-800 focus-visible:ring-amber-500"
+                      className="pr-9 bg-background border-border focus-visible:ring-amber-500"
                       value={cash}
                       onChange={(e) => {
                         setCash(e.target.value);
-                        calculateMaal();
-                      }} // Instant calc for demo
+                        // Instant calc
+                        const cashVal = parseFloat(e.target.value) || 0;
+                        setTotalZakat(cashVal * 0.025);
+                      }}
                     />
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="gold" className="text-slate-300">
-                    Gold (grams)
+                  <Label htmlFor="gold" className="text-foreground">
+                    الذهب (جرام)
                   </Label>
                   <div className="relative">
-                    <Coins className="absolute left-3 top-2.5 h-4 w-4 text-slate-500" />
+                    <Coins className="absolute right-3 top-2.5 h-4 w-4 text-muted-foreground" />
                     <Input
                       id="gold"
                       placeholder="0"
-                      className="pl-9 bg-slate-950 border-slate-800 focus-visible:ring-amber-500"
+                      className="pr-9 bg-background border-border focus-visible:ring-amber-500"
                       value={gold24}
                       onChange={(e) => setGold24(e.target.value)}
                     />
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="business" className="text-slate-300">
-                    Business Assets
+                  <Label htmlFor="business" className="text-foreground">
+                    أصول تجارية
                   </Label>
                   <div className="relative">
-                    <TrendingUp className="absolute left-3 top-2.5 h-4 w-4 text-slate-500" />
+                    <TrendingUp className="absolute right-3 top-2.5 h-4 w-4 text-muted-foreground" />
                     <Input
                       id="business"
                       placeholder="0.00"
-                      className="pl-9 bg-slate-950 border-slate-800 focus-visible:ring-amber-500"
+                      className="pr-9 bg-background border-border focus-visible:ring-amber-500"
                     />
                   </div>
                 </div>
@@ -149,29 +145,28 @@ export function ZakatCalculator() {
             <TabsContent value="fitr" className="space-y-6">
               <div className="space-y-4 max-w-md mx-auto py-4">
                 <div className="space-y-2">
-                  <Label htmlFor="members" className="text-slate-300">
-                    Number of Family Members
+                  <Label htmlFor="members" className="text-foreground">
+                    عدد أفراد الأسرة
                   </Label>
                   <div className="relative">
-                    <Users className="absolute left-3 top-2.5 h-4 w-4 text-slate-500" />
+                    <Users className="absolute right-3 top-2.5 h-4 w-4 text-muted-foreground" />
                     <Input
                       id="members"
                       type="number"
                       placeholder="1"
-                      className="pl-9 bg-slate-950 border-slate-800 focus-visible:ring-amber-500 h-12 text-lg"
+                      className="pr-9 bg-background border-border focus-visible:ring-amber-500 h-12 text-lg"
                       value={familyMembers}
                       onChange={(e) => {
                         setFamilyMembers(e.target.value);
-                        // Trigger calc handled by effect or simple logic here
                         const members = parseInt(e.target.value) || 0;
                         setTotalZakat(members * FITR_AMOUNT_PER_PERSON);
                       }}
                     />
                   </div>
-                  <p className="text-xs text-slate-500 text-center">
-                    Estimated amount per person:{" "}
+                  <p className="text-xs text-muted-foreground text-center">
+                    القيمة التقديرية للفرد:{" "}
                     <span className="text-amber-500 font-bold">
-                      ${FITR_AMOUNT_PER_PERSON}
+                      {FITR_AMOUNT_PER_PERSON} ج.م
                     </span>
                   </p>
                 </div>
@@ -180,14 +175,13 @@ export function ZakatCalculator() {
           </Tabs>
         </CardContent>
 
-        <CardFooter className="bg-slate-950/50 p-6 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <span className="text-slate-400 text-sm font-medium">
-            Total Zakat Payable
+        <CardFooter className="bg-muted/30 p-6 border-t border-border flex flex-row items-center justify-between gap-4">
+          <span className="text-muted-foreground text-sm font-medium">
+            إجمالي الزكاة المستحقة
           </span>
           <div className="flex items-center gap-4">
             <span className="text-3xl font-mono font-bold text-amber-500 tracking-tight">
-              $
-              {totalZakat.toLocaleString("en-US", {
+              {totalZakat.toLocaleString("ar-EG", {
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2,
               })}
@@ -196,7 +190,7 @@ export function ZakatCalculator() {
               size="icon"
               variant="outline"
               className={cn(
-                "h-10 w-10 border-slate-700 bg-slate-800 hover:bg-slate-700 transition-all",
+                "h-10 w-10 border-border bg-background hover:bg-muted transition-all",
                 copied && "text-green-500 border-green-500/50",
               )}
               onClick={handleCopy}

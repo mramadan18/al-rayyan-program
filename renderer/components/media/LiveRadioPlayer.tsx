@@ -9,11 +9,11 @@ export function LiveRadioPlayer() {
   const [volume, setVolume] = useState([80]);
 
   return (
-    <div className="w-full bg-slate-900 border-t border-slate-800 p-4 shadow-2xl backdrop-blur-lg bg-opacity-95 text-slate-100 flex items-center justify-between gap-4">
+    <div className="w-full bg-card border rounded-xl p-4 shadow-lg backdrop-blur-lg flex items-center justify-between gap-4">
       {/* Station Info */}
       <div className="flex items-center gap-4 min-w-[200px]">
         <div className="relative">
-          <div className="w-12 h-12 rounded-full bg-slate-800 flex items-center justify-center border border-slate-700">
+          <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center border">
             <Radio className="w-6 h-6 text-amber-500" />
           </div>
           {/* Live Indicator */}
@@ -24,17 +24,17 @@ export function LiveRadioPlayer() {
         </div>
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <h3 className="font-bold text-sm text-slate-200 leading-none">
+            <h3 className="font-bold text-sm text-foreground leading-none">
               إذاعة القرآن الكريم
             </h3>
             <Badge
               variant="destructive"
               className="bg-red-600/90 hover:bg-red-600 text-[10px] h-4 px-1.5 animate-pulse"
             >
-              LIVE
+              مباشر
             </Badge>
           </div>
-          <p className="text-xs text-slate-400">Cairo Public Radio</p>
+          <p className="text-xs text-muted-foreground">إذاعة القاهرة الكبرى</p>
         </div>
       </div>
 
@@ -61,7 +61,7 @@ export function LiveRadioPlayer() {
         {/* Play/Pause Button */}
         <button
           onClick={() => setIsPlaying(!isPlaying)}
-          className="w-12 h-12 rounded-full bg-white text-slate-950 flex items-center justify-center hover:scale-105 active:scale-95 transition-all shadow-lg shadow-white/10 border-2 border-amber-500"
+          className="w-12 h-12 rounded-full bg-primary text-primary-foreground flex items-center justify-center hover:scale-105 active:scale-95 transition-all shadow-lg border-2 border-amber-500"
         >
           {isPlaying ? (
             <Pause className="w-5 h-5 fill-current" />
@@ -72,7 +72,7 @@ export function LiveRadioPlayer() {
 
         {/* Volume Control */}
         <div className="hidden md:flex items-center gap-2 w-32 group">
-          <Volume2 className="w-4 h-4 text-slate-400 group-hover:text-amber-500 transition-colors" />
+          <Volume2 className="w-4 h-4 text-muted-foreground group-hover:text-amber-500 transition-colors" />
           <Slider
             defaultValue={[80]}
             max={100}
