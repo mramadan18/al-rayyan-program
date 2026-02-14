@@ -1,0 +1,96 @@
+import { ipcMain, BrowserWindow } from "electron";
+import { showAdhanWidget } from "./widget-manager";
+
+// Timings stored as "HH:mm" string
+let prayerTimes: Record<string, string> = {};
+let selectedAdhanPath = "/audio/adhan/adhan-1.mp3";
+let mainWindow: BrowserWindow | null = null;
+let checkInterval: NodeJS.Timeout | null = null;
+let lastProcessedMinute = -1;
+
+const toMinutes = (time: string) => {
+  const [h, m] = time.split(":").map(Number);
+  return h * 60 + m;
+};
+
+export const initPrayerScheduler = (win: BrowserWindow) => {
+  mainWindow = win;
+
+  // Listen for updates from Renderer keying on "update-prayer-times"
+  ipcMain.on("update-prayer-times", (event, data) => {
+    // data structure: { timings: { Fajr: "...", ... }, adhan: "path" }
+    if (data.timings) {
+      prayerTimes = data.timings;
+      // console.log("Background updated prayer times:", prayerTimes);
+    }
+    if (data.adhan) {
+      selectedAdhanPath = data.adhan;
+    }
+  });
+
+  ipcMain.on("test-adhan-widget", () => {
+    showAdhanWidget("Test Prayer", selectedAdhanPath);
+  });
+
+  ipcMain.on("test-pre-adhan", () => {
+    console.log("Received test-pre-adhan IPC in main process");
+    // Show widget with 15 minutes remaining (simulated)
+    // For test, let's say 15 seconds so they can see the transition? Or real 15 mins.
+    // Let's do 15 minutes as per real scenario.
+    const now = Date.now();
+    const target = now + 15 * 60 * 1000;
+
+    // Pass empty string for audio so widget doesn't play Adhan sound during Pre-Adhan check
+    showAdhanWidget("Test Prayer", "", target, 30000);
+
+    if (mainWindow) {
+      mainWindow.webContents.send("play-audio", "/audio/before-adhan.mp3");
+    }
+  });
+
+  startScheduler();
+};
+
+const startScheduler = () => {
+  if (checkInterval) clearInterval(checkInterval);
+
+  // Check every 10 seconds to ensure we catch the minute change
+  checkInterval = setInterval(checkPrayers, 10 * 1000);
+  checkPrayers(); // Initial check
+};
+
+const checkPrayers = () => {
+  if (!mainWindow || mainWindow.isDestroyed()) return;
+
+  const now = new Date();
+  const currentMinutes = now.getHours() * 60 + now.getMinutes();
+
+  // Prevent running multiple times in the same minute
+  if (currentMinutes === lastProcessedMinute) return;
+  lastProcessedMinute = currentMinutes;
+
+  // Iterate through prayers
+  for (const [name, time] of Object.entries(prayerTimes)) {
+    if (!time) continue;
+
+    // Skip non-obligatory if needed, but usually we schedule all provided
+    // Logic check:
+    const prayerMinutes = toMinutes(time);
+
+    // Distance to prayer in minutes (future-looking, handling midnight wrap)
+    // If prayer is 00:10 (10) and now is 23:55 (1435):
+    // (10 - 1435 + 1440) % 1440 = 15.
+    const diff = (prayerMinutes - currentMinutes + 1440) % 1440;
+
+    if (diff === 0) {
+      // It is NOW prayer time
+      console.log(`Triggering Adhan for ${name}`);
+      showAdhanWidget(name, selectedAdhanPath);
+    } else if (diff === 15) {
+      // 15 minutes before
+      console.log(`Triggering Pre-Adhan for ${name}`);
+      // Use specific pre-adhan file
+      mainWindow.webContents.send("play-audio", "/audio/before-adhan.mp3");
+    }
+  }
+};

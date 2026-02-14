@@ -4,8 +4,17 @@ import serve from "electron-serve";
 import { createWindow } from "./helpers";
 import { registerIpcHandlers } from "./ipc";
 import { setupWindowStateListeners } from "./ipc/window";
+import {
+  createTray,
+  handleWindowEvents,
+  getIsQuitting,
+} from "./services/tray-manager";
+import { initPrayerScheduler } from "./services/prayer-scheduler";
 
 const isProd = process.env.NODE_ENV === "production";
+
+// Allow audio autoplay without user interaction (crucial for background alerts)
+app.commandLine.appendSwitch("autoplay-policy", "no-user-gesture-required");
 
 let mainWindow: BrowserWindow | null = null;
 
@@ -29,11 +38,19 @@ if (!gotTheLock) {
       frame: false, // Frameless window
       webPreferences: {
         preload: path.join(__dirname, "preload.js"),
+        backgroundThrottling: false, // Ensure timers/audio run in background
       },
     });
 
-    // Setup window event listeners
+    // Setup window event listeners (persistence)
     setupWindowStateListeners(mainWindow);
+
+    // Setup Tray and Window Close prevention
+    createTray(mainWindow);
+    handleWindowEvents(mainWindow);
+
+    // Setup Prayer Scheduler
+    initPrayerScheduler(mainWindow);
 
     if (isProd) {
       await mainWindow.loadURL("app://./home");
@@ -55,6 +72,7 @@ if (!gotTheLock) {
       }
       // In production: Focus existing window
       if (mainWindow.isMinimized()) mainWindow.restore();
+      if (!mainWindow.isVisible()) mainWindow.show();
       mainWindow.focus();
     }
   });
@@ -69,6 +87,10 @@ if (!gotTheLock) {
   })();
 }
 
+// prevent app from quitting when all windows are closed
 app.on("window-all-closed", () => {
-  app.quit();
+  // We keep the app running in the tray
+  if (process.platform !== "darwin" && getIsQuitting()) {
+    app.quit();
+  }
 });

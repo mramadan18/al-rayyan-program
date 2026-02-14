@@ -5,6 +5,8 @@ export function useWindowControls() {
 
   useEffect(() => {
     // Listen for state changes from main process
+    if (!window.ipc) return;
+
     const removeListener = window.ipc.on(
       "window-state-change",
       (state: any) => {
