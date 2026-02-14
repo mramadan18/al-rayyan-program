@@ -1,16 +1,5 @@
 @import "tailwindcss";
 @import "tw-animate-css";
-
-/* Quran Font Fallback */
-@font-face {
-  font-family: "Uthmanic";
-  src: url("https://db.onlinewebfonts.com/t/0de2c040d7039cdcfcc318184c7e6344.woff2")
-    format("woff2");
-  font-weight: normal;
-  font-style: normal;
-  font-display: swap;
-}
-
 @custom-variant dark (&:is(.dark *));
 
 :root {
@@ -127,7 +116,7 @@
 
   /* Fonts */
   --font-sans: "Cairo", "IBM Plex Sans Arabic", ui-sans-serif, system-ui;
-  --font-quran: "Uthmanic", serif;
+  --font-quran: "Amiri", serif;
 
   /* Patterns */
   --image-islamic-pattern: url("/patterns/islamic-pattern.svg");

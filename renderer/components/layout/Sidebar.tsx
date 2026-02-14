@@ -42,16 +42,18 @@ export function Sidebar() {
         {NAV_ITEMS.map((item) => {
           const isActive = router.pathname.startsWith(item.href);
           return (
-            <Link key={item.href} href={item.href} passHref legacyBehavior>
-              <Button
-                variant="ghost"
-                className={cn(
-                  "w-full justify-start gap-4 text-base h-12 font-medium transition-all duration-200 relative overflow-hidden group/btn",
-                  isActive
-                    ? "bg-primary/10 text-primary hover:bg-primary/15 hover:text-primary shadow-sm ring-1 ring-primary/20"
-                    : "text-muted-foreground hover:bg-accent/50 hover:text-foreground hover:translate-x-1",
-                )}
-              >
+            <Button
+              key={item.href}
+              asChild
+              variant="ghost"
+              className={cn(
+                "w-full justify-start gap-4 text-base h-12 font-medium transition-all duration-200 relative overflow-hidden group/btn",
+                isActive
+                  ? "bg-primary/10 text-primary hover:bg-primary/15 hover:text-primary shadow-sm ring-1 ring-primary/20"
+                  : "text-muted-foreground hover:bg-accent/50 hover:text-foreground hover:translate-x-1",
+              )}
+            >
+              <Link href={item.href}>
                 {isActive && (
                   <div className="absolute right-0 top-0 bottom-0 w-1 bg-primary rounded-l-full" />
                 )}
@@ -64,8 +66,8 @@ export function Sidebar() {
                   )}
                 />
                 <span className="font-sans pt-0.5">{item.label}</span>
-              </Button>
-            </Link>
+              </Link>
+            </Button>
           );
         })}
       </nav>
