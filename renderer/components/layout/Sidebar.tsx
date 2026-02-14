@@ -4,7 +4,6 @@ import {
   Home,
   BookOpen,
   Scroll,
-  LayoutGrid,
   Settings,
   Radio,
   Moon,
@@ -17,7 +16,7 @@ const NAV_ITEMS = [
   { label: "الرئيسية", icon: Home, href: "/home" },
   { label: "المصحف", icon: BookOpen, href: "/quran" },
   { label: "الإذاعة", icon: Radio, href: "/radio" }, // New Radio Page
-  { label: "رمضان", icon: Moon, href: "/ramadan" }, // New Ramadan Page
+  { label: "إمساكية", icon: Moon, href: "/ramadan" }, // New Ramadan Page
   { label: "الزكاة", icon: Calculator, href: "/zakat" }, // New Zakat Page
   { label: "الأذكار", icon: Scroll, href: "/azkar" },
   { label: "الإعدادات", icon: Settings, href: "/settings" },
