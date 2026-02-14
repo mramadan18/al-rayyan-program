@@ -139,6 +139,12 @@
     background-repeat: repeat;
     background-size: 100px 100px;
   }
+  .app-drag-region {
+    -webkit-app-region: drag;
+  }
+  .no-drag {
+    -webkit-app-region: no-drag;
+  }
 }
 
 @layer base {
@@ -147,5 +153,29 @@
   }
   body {
     @apply bg-background text-foreground font-sans;
+  }
+
+  /* Custom Scrollbar Styles */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-muted/50 rounded-full border-2 border-transparent bg-clip-padding transition-colors;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-muted-foreground/30;
+  }
+
+  /* Support for Firefox (Optional but good practice) */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--muted) transparent;
   }
 }
