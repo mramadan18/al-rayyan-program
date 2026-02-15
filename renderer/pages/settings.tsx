@@ -283,6 +283,12 @@ export default function SettingsPage() {
             </Button>
             <Button
               variant="outline"
+              onClick={() => window.ipc.send("show-dua-widget")}
+            >
+              تجربة نافذة الدعاء
+            </Button>
+            <Button
+              variant="outline"
               onClick={() => window.ipc.send("window-close")}
             >
               إغلاق للعلبة (Tray)

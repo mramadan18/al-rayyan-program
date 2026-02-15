@@ -14,7 +14,16 @@ export const AdhanOverlay = () => {
     if (isAdhanActive && selectedAdhan) {
       const audio = new Audio(selectedAdhan);
       audio.muted = muted;
-      audio.onended = () => setIsAdhanActive(false);
+      audio.onended = () => {
+        console.log("Adhan ended, triggering Dua widget...");
+        if ((window as any).ipc) {
+          console.log("Sending show-dua-widget IPC message");
+          (window as any).ipc.send("show-dua-widget");
+        } else {
+          console.error("IPC not found on window object");
+        }
+        setIsAdhanActive(false);
+      };
       audio.play().catch((err) => console.error("Error playing adhan:", err));
       audioRef.current = audio;
 

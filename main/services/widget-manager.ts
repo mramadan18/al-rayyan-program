@@ -67,7 +67,7 @@ export const showAdhanWidget = async (
   console.log("Loading Widget URL:", url);
   await widgetWindow.loadURL(url);
 
-  widgetWindow.webContents.openDevTools({ mode: "detach" });
+  // widgetWindow.webContents.openDevTools({ mode: "detach" });
 
   if (autoCloseTimeout) {
     setTimeout(() => {

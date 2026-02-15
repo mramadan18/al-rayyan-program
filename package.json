@@ -1,9 +1,10 @@
 {
   "private": true,
-  "name": "my-nextron-app",
-  "description": "My application description",
+  "name": "al-rayyan",
+  "productName": "Al Rayyan",
+  "description": "Al-Rayyan: A comprehensive Islamic desktop application providing prayer times, Quran, Adhan notifications, and spiritual tools.",
   "version": "1.0.0",
-  "author": "Yoshihide Shiono <shiono.yoshihide@gmail.com>",
+  "author": "Al Rayyan",
   "main": "app/background.js",
   "scripts": {
     "dev": "nextron",

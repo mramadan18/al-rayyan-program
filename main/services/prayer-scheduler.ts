@@ -89,6 +89,20 @@ const checkPrayers = () => {
     } else if (diff === 15) {
       // 15 minutes before
       console.log(`Triggering Pre-Adhan for ${name}`);
+
+      const targetTime = new Date();
+      const [hours, mins] = time.split(":").map(Number);
+      targetTime.setHours(hours, mins, 0, 0);
+
+      // If the target is earlier than now, it must be for tomorrow
+      if (targetTime.getTime() < now.getTime()) {
+        targetTime.setDate(targetTime.getDate() + 1);
+      }
+
+      // Show widget with 15 minutes remaining
+      // We pass empty string for audioPath here because we play the pre-adhan sound separately via renderer
+      showAdhanWidget(name, "", targetTime.getTime(), 30000);
+
       // Use specific pre-adhan file
       mainWindow.webContents.send("play-audio", "/audio/before-adhan.mp3");
     }

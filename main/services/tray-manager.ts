@@ -25,9 +25,9 @@ export const createTray = (mainWindow: BrowserWindow) => {
 
   const contextMenu = Menu.buildFromTemplate([
     {
-      label: "فتح الريّان",
+      label: "اظهار / اخفاء البرنامج",
       click: () => {
-        mainWindow.show();
+        mainWindow.isVisible() ? mainWindow.hide() : mainWindow.show();
       },
     },
     {

@@ -73,8 +73,10 @@ export default function AdhanWidgetPage() {
       audioRef.current = audio;
 
       audio.onended = () => {
-        // Optional: Auto close or keep open? Prompt says "Close" button.
-        // Maybe better to keep open until user closes.
+        if (window.ipc) {
+          window.ipc.send("close-adhan-widget");
+          window.ipc.send("show-dua-widget");
+        }
       };
 
       return () => {

@@ -8,7 +8,9 @@ import { ThemeProvider } from "@/components/theme-provider";
 
 function MyApp({ Component, pageProps }: AppProps) {
   const router = useRouter();
-  const isWidget = router.pathname === "/adhan-widget";
+  const isWidget =
+    router.pathname === "/adhan-widget" ||
+    router.pathname.startsWith("/widgets/");
 
   if (isWidget) {
     return (
