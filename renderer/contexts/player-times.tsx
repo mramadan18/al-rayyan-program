@@ -6,7 +6,9 @@ import React, {
   useCallback,
 } from "react";
 import axios from "axios";
+import { IpcChannels } from "shared/constants";
 
+// --- Types & Interfaces ---
 interface PrayerTimings {
   Fajr: string;
   Sunrise: string;
@@ -46,16 +48,11 @@ interface PlayerTimesContextType {
     time: string;
     status: "passed" | "active" | "upcoming";
   }>;
-  isAdhanActive: boolean;
-  setIsAdhanActive: (active: boolean) => void;
-  currentAdhan: string | null;
   selectedAdhan: string;
   setSelectedAdhan: (path: string) => void;
-  simulateAdhan: () => void;
 }
 
-const PrayerTimesContext = createContext<PlayerTimesContextType | null>(null);
-
+// --- Constants & Utilities ---
 const PRAYER_NAMES: Record<string, string> = {
   Fajr: "الفجر",
   Sunrise: "الشروق",
@@ -66,6 +63,16 @@ const PRAYER_NAMES: Record<string, string> = {
 };
 
 const OBLIGATORY_PRAYERS = ["Fajr", "Dhuhr", "Asr", "Maghrib", "Isha"];
+
+const formatTime = (time24: string) => {
+  const [hours, minutes] = time24.split(":").map(Number);
+  const period = hours >= 12 ? "م" : "ص";
+  const h12 = hours % 12 || 12;
+  return `${String(h12).padStart(2, "0")}:${String(minutes).padStart(2, "0")} ${period}`;
+};
+
+// --- Context Definition ---
+const PrayerTimesContext = createContext<PlayerTimesContextType | null>(null);
 
 export const PlayerTimesProvider = ({
   children,
@@ -78,41 +85,25 @@ export const PlayerTimesProvider = ({
   const [nextPrayer, setNextPrayer] =
     useState<PlayerTimesContextType["nextPrayer"]>(null);
   const [prayers, setPrayers] = useState<PlayerTimesContextType["prayers"]>([]);
-  const [isAdhanActive, setIsAdhanActive] = useState(false);
-  const [currentAdhan, setCurrentAdhan] = useState<string | null>(null);
   const [selectedAdhan, setSelectedAdhanState] = useState(
     "/audio/adhan/adhan-1.mp3",
   );
 
+  // 1. Load settings on mount
   useEffect(() => {
-    const loadAdhanSetting = async () => {
+    const loadSettings = async () => {
       try {
         const saved = await window.ipc.invoke("store-get", "selected-adhan");
-        if (saved) {
-          setSelectedAdhanState(saved as string);
-        }
-      } catch (error) {
-        console.error("Error loading adhan setting:", error);
+        if (saved) setSelectedAdhanState(saved as string);
+      } catch (err) {
+        console.error("Error loading adhan setting:", err);
       }
     };
-    loadAdhanSetting();
+    loadSettings();
   }, []);
 
-  const setSelectedAdhan = (path: string) => {
-    setSelectedAdhanState(path);
-    window.ipc.invoke("store-set", "selected-adhan", path);
-    // Notify main process of new adhan path
-    window.ipc.send("update-prayer-times", { adhan: path });
-  };
-
-  const simulateAdhan = () => {
-    if (nextPrayer) {
-      setCurrentAdhan(nextPrayer.name);
-      setIsAdhanActive(true);
-    }
-  };
-
-  const fetchData = async () => {
+  // 2. Fetch prayer times
+  const fetchData = useCallback(async () => {
     try {
       setLoading(true);
       const response = await axios.get(
@@ -126,16 +117,15 @@ export const PlayerTimesProvider = ({
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [fetchData]);
 
-  // Sync with Main Process
+  // 3. Sync with Main Process
   useEffect(() => {
     if (data?.timings) {
-      // Send times to main process for background scheduler
       window.ipc.send("update-prayer-times", {
         timings: data.timings,
         adhan: selectedAdhan,
@@ -143,34 +133,20 @@ export const PlayerTimesProvider = ({
     }
   }, [data, selectedAdhan]);
 
-  // Listen for background audio triggers (e.g. Pre-Adhan)
+  // 4. Global Audio Listener (Pre-Adhan etc.)
   useEffect(() => {
+    if (!window.ipc) return;
+
     const handlePlayAudio = (path: string) => {
-      console.log("Renderer received play-audio:", path);
       const audio = new Audio(path);
-      audio.oncanplaythrough = () => console.log("Audio can play through");
-      audio.onerror = (e) => console.error("Audio error:", e);
-
-      const playPromise = audio.play();
-      if (playPromise !== undefined) {
-        playPromise
-          .then(() => console.log("Audio playing successfully"))
-          .catch((err) =>
-            console.error("Error playing background audio:", err),
-          );
-      }
+      audio.play().catch((err) => console.error("Audio playback error:", err));
     };
 
-    let removeListener: (() => void) | undefined;
-    if (window.ipc) {
-      removeListener = window.ipc.on("play-audio", handlePlayAudio);
-    }
-
-    return () => {
-      if (removeListener) removeListener();
-    };
+    const removeListener = window.ipc.on("play-audio", handlePlayAudio);
+    return () => removeListener();
   }, []);
 
+  // 5. Prayer Status Calculation
   const calculateStatus = useCallback(() => {
     if (!data) return;
 
@@ -192,56 +168,47 @@ export const PlayerTimesProvider = ({
         };
       });
 
-    // Find current and next prayer
+    // Find current active index
     let activeIndex = -1;
     for (let i = 0; i < prayerList.length; i++) {
       const current = prayerList[i];
       const next = prayerList[i + 1];
-
       if (now >= current.date && (!next || now < next.date)) {
         activeIndex = i;
         break;
       }
     }
+    if (now < prayerList[0].date) activeIndex = -1;
 
-    // If it's before Fajr
-    if (now < prayerList[0].date) {
-      activeIndex = -1;
-    }
-
-    const updatedPrayers = prayerList.map((p, i) => {
-      let status: "passed" | "active" | "upcoming" = "upcoming";
-      if (i < activeIndex) status = "passed";
-      else if (i === activeIndex) status = "active";
-      return { ...p, status };
-    });
-
-    setPrayers(updatedPrayers);
+    setPrayers(
+      prayerList.map((p, i) => ({
+        ...p,
+        status:
+          i < activeIndex
+            ? "passed"
+            : i === activeIndex
+              ? "active"
+              : "upcoming",
+      })),
+    );
 
     // Calculate next prayer
-    let nextIdx = activeIndex + 1;
-    let isNextDay = false;
-
-    if (nextIdx >= prayerList.length) {
-      nextIdx = 0;
-      isNextDay = true;
-    }
+    let nextIdx = (activeIndex + 1) % prayerList.length;
+    let isNextDay = nextIdx <= activeIndex;
 
     const next = prayerList[nextIdx];
     const targetDate = new Date(next.date);
-    if (isNextDay) {
-      targetDate.setDate(targetDate.getDate() + 1);
-    }
+    if (isNextDay) targetDate.setDate(targetDate.getDate() + 1);
 
     const diff = targetDate.getTime() - now.getTime();
-    const hours = Math.floor(diff / (1000 * 60 * 60));
-    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+    const h = Math.floor(diff / 3600000);
+    const m = Math.floor((diff % 3600000) / 60000);
+    const s = Math.floor((diff % 60000) / 1000);
 
     setNextPrayer({
       name: next.name,
       time: next.time,
-      remaining: `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`,
+      remaining: `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`,
     });
   }, [data]);
 
@@ -250,12 +217,12 @@ export const PlayerTimesProvider = ({
     return () => clearInterval(timer);
   }, [calculateStatus]);
 
-  function formatTime(time24: string) {
-    const [hours, minutes] = time24.split(":").map(Number);
-    const period = hours >= 12 ? "م" : "ص";
-    const h12 = hours % 12 || 12;
-    return `${String(h12).padStart(2, "0")}:${String(minutes).padStart(2, "0")} ${period}`;
-  }
+  // 6. Helpers
+  const setSelectedAdhan = (path: string) => {
+    setSelectedAdhanState(path);
+    window.ipc.invoke("store-set", "selected-adhan", path);
+    window.ipc.send("update-prayer-times", { adhan: path });
+  };
 
   return (
     <PrayerTimesContext.Provider
@@ -265,12 +232,8 @@ export const PlayerTimesProvider = ({
         error,
         nextPrayer,
         prayers,
-        isAdhanActive,
-        setIsAdhanActive,
-        currentAdhan,
         selectedAdhan,
         setSelectedAdhan,
-        simulateAdhan,
       }}
     >
       {children}
@@ -280,9 +243,8 @@ export const PlayerTimesProvider = ({
 
 export const usePrayerTimes = () => {
   const context = useContext(PrayerTimesContext);
-  if (!context) {
+  if (!context)
     throw new Error("usePrayerTimes must be used within a PlayerTimesProvider");
-  }
   return context;
 };
 

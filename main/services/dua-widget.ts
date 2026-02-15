@@ -1,6 +1,7 @@
 import { BrowserWindow, screen, ipcMain } from "electron";
 import path from "path";
 import Store from "electron-store";
+import { IpcChannels } from "../shared/constants";
 
 const store = new Store();
 const isProd = process.env.NODE_ENV === "production";
@@ -61,14 +62,14 @@ export const closeDuaWidget = () => {
 };
 
 export const initDuaWidgetListeners = () => {
-  ipcMain.on("show-dua-widget", () => {
+  ipcMain.on(IpcChannels.OPEN_DUA_WIDGET, () => {
     console.log("Received show-dua-widget IPC message in Main process");
     // Get volume from store, default to 1 (100%)
     const volume = (store.get("settings.volume") as number) ?? 1;
     createDuaWidget(volume);
   });
 
-  ipcMain.on("close-dua-widget", () => {
+  ipcMain.on(IpcChannels.CLOSE_DUA_WIDGET, () => {
     closeDuaWidget();
   });
 };

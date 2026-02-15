@@ -16,7 +16,8 @@
     "jsx": "preserve",
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./renderer/*"]
+      "@/*": ["./renderer/*"],
+      "shared/*": ["./main/shared/*"]
     }
   },
   "exclude": ["node_modules", "renderer/next.config.js", "app", "dist"]

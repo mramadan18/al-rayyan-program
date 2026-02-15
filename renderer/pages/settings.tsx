@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/button";
 import { useTheme } from "next-themes";
 import { usePrayerTimes } from "@/contexts/player-times";
 import { cn } from "@/lib/utils";
+import { IpcChannels } from "shared/constants";
 
 const ADHAN_SOUNDS = [
   { id: "adhan-1", name: "اذان 1", path: "/audio/adhan/adhan-1.mp3" },
@@ -271,7 +272,7 @@ export default function SettingsPage() {
           <div className="flex flex-wrap gap-4">
             <Button
               variant="outline"
-              onClick={() => window.ipc.send("test-adhan-widget")}
+              onClick={() => window.ipc.send(IpcChannels.OPEN_ADHAN_WIDGET)}
             >
               تجربة نافذة الأذان
             </Button>
@@ -283,13 +284,13 @@ export default function SettingsPage() {
             </Button>
             <Button
               variant="outline"
-              onClick={() => window.ipc.send("show-dua-widget")}
+              onClick={() => window.ipc.send(IpcChannels.OPEN_DUA_WIDGET)}
             >
               تجربة نافذة الدعاء
             </Button>
             <Button
               variant="outline"
-              onClick={() => window.ipc.send("window-close")}
+              onClick={() => window.ipc.send(IpcChannels.WINDOW_CLOSE)}
             >
               إغلاق للعلبة (Tray)
             </Button>

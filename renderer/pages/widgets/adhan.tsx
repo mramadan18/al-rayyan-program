@@ -1,9 +1,10 @@
-import React, { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/router";
 import Head from "next/head";
 import { Button } from "@/components/ui/button";
 import { X, Volume2, VolumeX } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
+import { IpcChannels } from "shared/constants";
 
 export default function AdhanWidgetPage() {
   const router = useRouter();
@@ -59,7 +60,7 @@ export default function AdhanWidgetPage() {
   const handleClose = () => {
     // Send IPC to main process to close this window
     if (window.ipc) {
-      window.ipc.send("close-adhan-widget");
+      window.ipc.send(IpcChannels.CLOSE_ADHAN_WIDGET);
     }
   };
 
@@ -74,8 +75,8 @@ export default function AdhanWidgetPage() {
 
       audio.onended = () => {
         if (window.ipc) {
-          window.ipc.send("close-adhan-widget");
-          window.ipc.send("show-dua-widget");
+          window.ipc.send(IpcChannels.CLOSE_ADHAN_WIDGET);
+          window.ipc.send(IpcChannels.OPEN_DUA_WIDGET);
         }
       };
 

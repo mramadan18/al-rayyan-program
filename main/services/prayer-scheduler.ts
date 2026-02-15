@@ -1,5 +1,6 @@
 import { ipcMain, BrowserWindow } from "electron";
 import { showAdhanWidget } from "./widget-manager";
+import { IpcChannels } from "../shared/constants";
 
 // Timings stored as "HH:mm" string
 let prayerTimes: Record<string, string> = {};
@@ -28,15 +29,13 @@ export const initPrayerScheduler = (win: BrowserWindow) => {
     }
   });
 
-  ipcMain.on("test-adhan-widget", () => {
+  ipcMain.on(IpcChannels.OPEN_ADHAN_WIDGET, () => {
     showAdhanWidget("Test Prayer", selectedAdhanPath);
   });
 
   ipcMain.on("test-pre-adhan", () => {
     console.log("Received test-pre-adhan IPC in main process");
     // Show widget with 15 minutes remaining (simulated)
-    // For test, let's say 15 seconds so they can see the transition? Or real 15 mins.
-    // Let's do 15 minutes as per real scenario.
     const now = Date.now();
     const target = now + 15 * 60 * 1000;
 
@@ -73,13 +72,9 @@ const checkPrayers = () => {
   for (const [name, time] of Object.entries(prayerTimes)) {
     if (!time) continue;
 
-    // Skip non-obligatory if needed, but usually we schedule all provided
-    // Logic check:
     const prayerMinutes = toMinutes(time);
 
-    // Distance to prayer in minutes (future-looking, handling midnight wrap)
-    // If prayer is 00:10 (10) and now is 23:55 (1435):
-    // (10 - 1435 + 1440) % 1440 = 15.
+    // Distance to prayer in minutes
     const diff = (prayerMinutes - currentMinutes + 1440) % 1440;
 
     if (diff === 0) {
@@ -100,7 +95,6 @@ const checkPrayers = () => {
       }
 
       // Show widget with 15 minutes remaining
-      // We pass empty string for audioPath here because we play the pre-adhan sound separately via renderer
       showAdhanWidget(name, "", targetTime.getTime(), 30000);
 
       // Use specific pre-adhan file

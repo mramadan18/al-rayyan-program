@@ -4,13 +4,11 @@ import { useRouter } from "next/router";
 import "../styles/globals.css";
 
 import Layout from "../components/Layout";
-import { ThemeProvider } from "@/components/theme-provider";
+import { ThemeProvider } from "@/components/common/ThemeProvider";
 
 function MyApp({ Component, pageProps }: AppProps) {
   const router = useRouter();
-  const isWidget =
-    router.pathname === "/adhan-widget" ||
-    router.pathname.startsWith("/widgets/");
+  const isWidget = router.pathname.startsWith("/widgets/");
 
   if (isWidget) {
     return (

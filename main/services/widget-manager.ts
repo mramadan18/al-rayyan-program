@@ -1,6 +1,7 @@
 import { BrowserWindow, screen, ipcMain } from "electron";
 import path from "path";
 import Store from "electron-store";
+import { IpcChannels } from "../shared/constants";
 
 const store = new Store();
 
@@ -60,14 +61,13 @@ export const showAdhanWidget = async (
   const isProd = process.env.NODE_ENV === "production";
   const query = `prayer=${encodeURIComponent(prayerName)}&audio=${encodeURIComponent(audioPath)}${targetTime ? `&targetTime=${targetTime}` : ""}`;
 
+  // Updated path to /widgets/adhan
   const url = isProd
-    ? `app://./adhan-widget?${query}`
-    : `http://localhost:${process.argv[2]}/adhan-widget?${query}`;
+    ? `app://./widgets/adhan?${query}`
+    : `http://localhost:${process.argv[2]}/widgets/adhan?${query}`;
 
   console.log("Loading Widget URL:", url);
   await widgetWindow.loadURL(url);
-
-  // widgetWindow.webContents.openDevTools({ mode: "detach" });
 
   if (autoCloseTimeout) {
     setTimeout(() => {
@@ -97,6 +97,8 @@ export const closeAdhanWidget = () => {
 };
 
 // Register IPC handler for closing
-ipcMain.on("close-adhan-widget", () => {
-  closeAdhanWidget();
-});
+export const initAdhanWidgetListeners = () => {
+  ipcMain.on(IpcChannels.CLOSE_ADHAN_WIDGET, () => {
+    closeAdhanWidget();
+  });
+};

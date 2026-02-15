@@ -1,8 +1,9 @@
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/router";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import { IpcChannels } from "shared/constants";
 
 export default function DuaWidget() {
   const router = useRouter();
@@ -29,7 +30,7 @@ export default function DuaWidget() {
     // Close window on end
     const handleEnded = () => {
       if ((window as any).ipc) {
-        (window as any).ipc.send("close-dua-widget");
+        (window as any).ipc.send(IpcChannels.CLOSE_DUA_WIDGET);
       }
     };
 

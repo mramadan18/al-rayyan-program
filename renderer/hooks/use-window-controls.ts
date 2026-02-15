@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { IpcChannels } from "shared/constants";
 
 export function useWindowControls() {
   const [isMaximized, setIsMaximized] = useState(false);
@@ -20,16 +21,16 @@ export function useWindowControls() {
   }, []);
 
   const minimize = () => {
-    window.ipc.send("window-minimize", null);
+    window.ipc.send(IpcChannels.WINDOW_MINIMIZE, null);
   };
 
   const maximize = () => {
-    window.ipc.send("window-maximize", null);
+    window.ipc.send(IpcChannels.WINDOW_MAXIMIZE, null);
     // Note: The actual state will be updated via the IPC listener
   };
 
   const close = () => {
-    window.ipc.send("window-close", null);
+    window.ipc.send(IpcChannels.WINDOW_CLOSE, null);
   };
 
   return {

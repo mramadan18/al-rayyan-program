@@ -2,7 +2,7 @@ import Head from "next/head";
 import { MiniWidget } from "@/components/widgets/MiniWidget";
 
 // Minimal widget window
-export default function WidgetPage() {
+export default function MiniPrayerWidgetPage() {
   return (
     <>
       <Head>
