@@ -10,6 +10,10 @@ import {
   getIsQuitting,
 } from "./services/tray-manager";
 import { initPrayerScheduler } from "./services/prayer-scheduler";
+import { openMiniWidget } from "./services/mini-widget-manager";
+import Store from "electron-store";
+
+const store = new Store();
 
 const isProd = process.env.NODE_ENV === "production";
 
@@ -59,6 +63,18 @@ if (!gotTheLock) {
       await mainWindow.loadURL(`http://localhost:${port}/home`);
       mainWindow.webContents.openDevTools();
     }
+
+    // Auto-open Mini Widget if enabled
+    const showMiniWidget = store.get("show-mini-widget");
+    console.log("Checking mini widget startup state:", showMiniWidget);
+    if (showMiniWidget) {
+      try {
+        await openMiniWidget();
+        console.log("Mini widget opened successfully on startup");
+      } catch (err) {
+        console.error("Failed to auto-open mini widget:", err);
+      }
+    }
   };
 
   app.on("second-instance", () => {
@@ -83,8 +99,22 @@ if (!gotTheLock) {
     // Register all IPC handlers (Only once)
     registerIpcHandlers();
 
+    // Sync startup settings
+    syncStartupSettings();
+
     await startApp();
   })();
+}
+
+function syncStartupSettings() {
+  const startAtLogin = store.get("start-at-login");
+
+  if (startAtLogin !== undefined) {
+    app.setLoginItemSettings({
+      openAtLogin: startAtLogin as boolean,
+      path: app.getPath("exe"),
+    });
+  }
 }
 
 // prevent app from quitting when all windows are closed

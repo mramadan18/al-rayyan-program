@@ -98,7 +98,7 @@ export default function AdhanWidgetPage() {
       <Head>
         <title>Adhan Alert</title>
       </Head>
-      <div className="h-screen w-screen flex items-center justify-center overflow-hidden bg-transparent">
+      <div className="w-screen flex items-center justify-center overflow-hidden bg-transparent">
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}

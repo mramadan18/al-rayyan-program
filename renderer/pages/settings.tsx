@@ -1,4 +1,13 @@
-import { Monitor, Bell, MapPin, Play, Pause, FlaskConical } from "lucide-react";
+import {
+  Monitor,
+  Bell,
+  MapPin,
+  Play,
+  Pause,
+  FlaskConical,
+  Settings,
+  RotateCcw,
+} from "lucide-react";
 import { PageLayout } from "@/components/layout/PageLayout";
 import { SettingsSection } from "@/components/settings/SettingsSection";
 import { AppearanceToggle } from "@/components/settings/AppearanceToggle";
@@ -15,63 +24,35 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { useTheme } from "next-themes";
-import { usePrayerTimes } from "@/contexts/player-times";
 import { cn } from "@/lib/utils";
 import { IpcChannels } from "shared/constants";
+import { useSettings } from "@/contexts/settings-context";
 
 const ADHAN_SOUNDS = [
   { id: "adhan-1", name: "اذان 1", path: "/audio/adhan/adhan-1.mp3" },
-  {
-    id: "adhan-2",
-    name: "اذان 2",
-    path: "/audio/adhan/adhan-2.mp3",
-  },
-  {
-    id: "adhan-3",
-    name: "اذان 3",
-    path: "/audio/adhan/adhan-3.mp3",
-  },
-  {
-    id: "adhan-4",
-    name: "اذان 4",
-    path: "/audio/adhan/adhan-4.mp3",
-  },
+  { id: "adhan-2", name: "اذان 2", path: "/audio/adhan/adhan-2.mp3" },
+  { id: "adhan-3", name: "اذان 3", path: "/audio/adhan/adhan-3.mp3" },
+  { id: "adhan-4", name: "اذان 4", path: "/audio/adhan/adhan-4.mp3" },
   { id: "adhan-5", name: "اذان 5", path: "/audio/adhan/adhan-5.mp3" },
 ];
 
 export default function SettingsPage() {
   const { theme, setTheme } = useTheme();
-  const { selectedAdhan, setSelectedAdhan } = usePrayerTimes();
-  const [locationSettings, setLocationSettings] = useState({
-    calculationMethod: "EGYPT",
-    juristicMethod: "SHAFI",
-  });
+  const {
+    locationSettings,
+    startAtLogin,
+    showMiniWidget,
+    selectedAdhan,
+    miniWidgetSize,
+    updateLocationSettings,
+    updateStartAtLogin,
+    updateShowMiniWidget,
+    updateSelectedAdhan,
+    updateMiniWidgetSize,
+  } = useSettings();
 
   const [playingAudio, setPlayingAudio] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
-
-  useEffect(() => {
-    const loadSettings = async () => {
-      try {
-        const saved = await window.ipc.invoke("store-get", "location-settings");
-        if (saved) {
-          setLocationSettings(saved as typeof locationSettings);
-        }
-      } catch (error) {
-        console.error("Error loading settings:", error);
-      }
-    };
-    loadSettings();
-  }, []);
-
-  const handleSettingChange = (
-    key: keyof typeof locationSettings,
-    value: any,
-  ) => {
-    const newSettings = { ...locationSettings, [key]: value };
-    setLocationSettings(newSettings);
-    window.ipc.invoke("store-set", "location-settings", newSettings);
-  };
 
   const handlePlayPreview = (path: string) => {
     if (audioRef.current) {
@@ -112,7 +93,10 @@ export default function SettingsPage() {
               <Select
                 value={locationSettings.calculationMethod}
                 onValueChange={(value) =>
-                  handleSettingChange("calculationMethod", value)
+                  updateLocationSettings({
+                    ...locationSettings,
+                    calculationMethod: value,
+                  })
                 }
               >
                 <SelectTrigger className="w-full">
@@ -145,7 +129,10 @@ export default function SettingsPage() {
               <Select
                 value={locationSettings.juristicMethod}
                 onValueChange={(value) =>
-                  handleSettingChange("juristicMethod", value)
+                  updateLocationSettings({
+                    ...locationSettings,
+                    juristicMethod: value,
+                  })
                 }
               >
                 <SelectTrigger className="w-full">
@@ -194,7 +181,7 @@ export default function SettingsPage() {
                         ? "bg-primary/10 border-primary"
                         : "bg-background border-transparent hover:bg-accent/50",
                     )}
-                    onClick={() => setSelectedAdhan(sound.path)}
+                    onClick={() => updateSelectedAdhan(sound.path)}
                   >
                     <div className="flex items-center gap-3">
                       <div
@@ -267,7 +254,80 @@ export default function SettingsPage() {
           />
         </SettingsSection>
 
-        {/* Developer / Testing Section */}
+        <SettingsSection title="إعدادات النظام" icon={Settings}>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <Label htmlFor="start-at-login">التشغيل عند بدء الجهاز</Label>
+                <p className="text-xs text-muted-foreground">
+                  تشغيل البرنامج تلقائياً عند فتح الويندوز
+                </p>
+              </div>
+              <Switch
+                id="start-at-login"
+                checked={startAtLogin}
+                onCheckedChange={updateStartAtLogin}
+              />
+            </div>
+
+            <Separator />
+
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <Label htmlFor="show-mini-widget">
+                  عرض علامة مواقيت الصلاة
+                </Label>
+                <p className="text-xs text-muted-foreground">
+                  إظهار نافذة صغيرة لمواقيت الصلاة على سطح المكتب
+                </p>
+              </div>
+              <Switch
+                id="show-mini-widget"
+                checked={showMiniWidget}
+                onCheckedChange={updateShowMiniWidget}
+              />
+            </div>
+
+            <Separator />
+
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <Label>حجم علامة مواقيت الصلاة</Label>
+                <p className="text-xs text-muted-foreground">
+                  تغيير حجم النافذة على سطح المكتب (0.7 - 1.5)
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="flex items-center gap-4 w-48">
+                  <input
+                    type="range"
+                    min="0.7"
+                    max="1.5"
+                    step="0.1"
+                    value={miniWidgetSize}
+                    onChange={(e) =>
+                      updateMiniWidgetSize(parseFloat(e.target.value))
+                    }
+                    className="w-full h-2 bg-secondary rounded-lg appearance-none cursor-pointer accent-primary"
+                  />
+                  <span className="text-xs font-mono w-10 text-center">
+                    {Math.round(miniWidgetSize * 100)}%
+                  </span>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 text-muted-foreground hover:text-primary"
+                  onClick={() => updateMiniWidgetSize(1.0)}
+                  title="إعادة ضبط الحجم"
+                >
+                  <RotateCcw className="w-4 h-4" />
+                </Button>
+              </div>
+            </div>
+          </div>
+        </SettingsSection>
+
         <SettingsSection title="أدوات المطور" icon={FlaskConical}>
           <div className="flex flex-wrap gap-4">
             <Button

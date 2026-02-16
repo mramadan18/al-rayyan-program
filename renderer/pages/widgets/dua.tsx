@@ -48,7 +48,7 @@ export default function DuaWidget() {
   }, [router.query]);
 
   return (
-    <div className="h-screen w-screen flex items-center justify-center bg-transparent overflow-hidden">
+    <div className="w-screen flex items-center justify-center bg-transparent overflow-hidden">
       <motion.div
         initial={{ y: 50, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}

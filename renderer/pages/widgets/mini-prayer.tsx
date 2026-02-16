@@ -1,5 +1,6 @@
 import Head from "next/head";
 import { MiniWidget } from "@/components/widgets/MiniWidget";
+import { PlayerTimesProvider } from "@/contexts/player-times";
 
 // Minimal widget window
 export default function MiniPrayerWidgetPage() {
@@ -8,10 +9,12 @@ export default function MiniPrayerWidgetPage() {
       <Head>
         <title>Al-Rayyan Widget</title>
       </Head>
-      <div className="h-screen w-screen flex items-center justify-center bg-transparent overflow-hidden">
-        {/* The MiniWidget itself handles drag and styling */}
-        <MiniWidget />
-      </div>
+      <PlayerTimesProvider>
+        <div className="h-screen w-screen bg-transparent overflow-hidden rounded-3xl">
+          {/* The MiniWidget itself handles drag and styling */}
+          <MiniWidget />
+        </div>
+      </PlayerTimesProvider>
       <style jsx global>{`
         body {
           background: transparent !important;

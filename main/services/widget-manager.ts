@@ -76,11 +76,30 @@ export const showAdhanWidget = async (
     }, autoCloseTimeout);
   }
 
-  // Save position on move
+  // Save position on move and clamp to screen
   widgetWindow.on("moved", () => {
     if (widgetWindow) {
       const bounds = widgetWindow.getBounds();
-      store.set("widget-bounds", { x: bounds.x, y: bounds.y });
+      const display = screen.getDisplayMatching(bounds);
+      const { x: scrX, y: scrY, width: scrW, height: scrH } = display.bounds;
+
+      let newX = bounds.x;
+      let newY = bounds.y;
+
+      // Clamp X
+      if (newX < scrX) newX = scrX;
+      if (newX + bounds.width > scrX + scrW) newX = scrX + scrW - bounds.width;
+
+      // Clamp Y
+      if (newY < scrY) newY = scrY;
+      if (newY + bounds.height > scrY + scrH)
+        newY = scrY + scrH - bounds.height;
+
+      if (newX !== bounds.x || newY !== bounds.y) {
+        widgetWindow.setPosition(newX, newY);
+      }
+
+      store.set("widget-bounds", { x: newX, y: newY });
     }
   });
 

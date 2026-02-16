@@ -31,6 +31,13 @@ export const createTray = (mainWindow: BrowserWindow) => {
       },
     },
     {
+      label: "إظهار / إخفاء مواقيت الصلاة",
+      click: () => {
+        const { toggleMiniWidget } = require("./mini-widget-manager");
+        toggleMiniWidget();
+      },
+    },
+    {
       label: "إغلاق",
       click: () => {
         isQuitting = true;

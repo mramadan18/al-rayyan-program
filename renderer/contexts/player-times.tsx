@@ -7,6 +7,7 @@ import React, {
 } from "react";
 import axios from "axios";
 import { IpcChannels } from "shared/constants";
+import { useSettings } from "./settings-context";
 
 // --- Types & Interfaces ---
 interface PrayerTimings {
@@ -85,24 +86,9 @@ export const PlayerTimesProvider = ({
   const [nextPrayer, setNextPrayer] =
     useState<PlayerTimesContextType["nextPrayer"]>(null);
   const [prayers, setPrayers] = useState<PlayerTimesContextType["prayers"]>([]);
-  const [selectedAdhan, setSelectedAdhanState] = useState(
-    "/audio/adhan/adhan-1.mp3",
-  );
+  const { selectedAdhan, updateSelectedAdhan } = useSettings();
 
-  // 1. Load settings on mount
-  useEffect(() => {
-    const loadSettings = async () => {
-      try {
-        const saved = await window.ipc.invoke("store-get", "selected-adhan");
-        if (saved) setSelectedAdhanState(saved as string);
-      } catch (err) {
-        console.error("Error loading adhan setting:", err);
-      }
-    };
-    loadSettings();
-  }, []);
-
-  // 2. Fetch prayer times
+  // 1. Fetch prayer times
   const fetchData = useCallback(async () => {
     try {
       setLoading(true);
@@ -125,7 +111,7 @@ export const PlayerTimesProvider = ({
 
   // 3. Sync with Main Process
   useEffect(() => {
-    if (data?.timings) {
+    if (data?.timings && window.ipc) {
       window.ipc.send("update-prayer-times", {
         timings: data.timings,
         adhan: selectedAdhan,
@@ -219,9 +205,7 @@ export const PlayerTimesProvider = ({
 
   // 6. Helpers
   const setSelectedAdhan = (path: string) => {
-    setSelectedAdhanState(path);
-    window.ipc.invoke("store-set", "selected-adhan", path);
-    window.ipc.send("update-prayer-times", { adhan: path });
+    updateSelectedAdhan(path);
   };
 
   return (

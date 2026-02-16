@@ -5,6 +5,7 @@ import "../styles/globals.css";
 
 import Layout from "../components/Layout";
 import { ThemeProvider } from "@/components/common/ThemeProvider";
+import { SettingsProvider } from "@/contexts/settings-context";
 
 function MyApp({ Component, pageProps }: AppProps) {
   const router = useRouter();
@@ -12,21 +13,25 @@ function MyApp({ Component, pageProps }: AppProps) {
 
   if (isWidget) {
     return (
-      <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-        <Component {...pageProps} />
-      </ThemeProvider>
+      <SettingsProvider>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          <Component {...pageProps} />
+        </ThemeProvider>
+      </SettingsProvider>
     );
   }
 
   return (
-    <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-      <Layout>
-        <Head>
-          <title>Al Rayyan</title>
-        </Head>
-        <Component {...pageProps} />
-      </Layout>
-    </ThemeProvider>
+    <SettingsProvider>
+      <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+        <Layout>
+          <Head>
+            <title>Al Rayyan</title>
+          </Head>
+          <Component {...pageProps} />
+        </Layout>
+      </ThemeProvider>
+    </SettingsProvider>
   );
 }
 

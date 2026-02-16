@@ -49,6 +49,28 @@ export const createDuaWidget = async (volume: number = 1) => {
 
   await duaWidgetWindow.loadURL(url);
 
+  // Clamp position to screen on move
+  duaWidgetWindow.on("moved", () => {
+    if (duaWidgetWindow) {
+      const bounds = duaWidgetWindow.getBounds();
+      const display = screen.getDisplayMatching(bounds);
+      const { x: scrX, y: scrY, width: scrW, height: scrH } = display.bounds;
+
+      let newX = bounds.x;
+      let newY = bounds.y;
+
+      if (newX < scrX) newX = scrX;
+      if (newX + bounds.width > scrX + scrW) newX = scrX + scrW - bounds.width;
+      if (newY < scrY) newY = scrY;
+      if (newY + bounds.height > scrY + scrH)
+        newY = scrY + scrH - bounds.height;
+
+      if (newX !== bounds.x || newY !== bounds.y) {
+        duaWidgetWindow.setPosition(newX, newY);
+      }
+    }
+  });
+
   duaWidgetWindow.on("closed", () => {
     duaWidgetWindow = null;
   });
