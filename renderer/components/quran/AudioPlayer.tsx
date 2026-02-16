@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 interface AudioPlayerProps {
   isPlaying: boolean;
   onPlayPause: () => void;
+  onNext?: () => void;
+  onPrevious?: () => void;
   progress: number;
   onProgressChange: (value: number) => void;
   reciterName: string;
@@ -14,6 +16,8 @@ interface AudioPlayerProps {
 export function AudioPlayer({
   isPlaying,
   onPlayPause,
+  onNext,
+  onPrevious,
   progress,
   onProgressChange,
   reciterName,
@@ -28,8 +32,9 @@ export function AudioPlayer({
             variant="ghost"
             size="icon"
             className="text-muted-foreground hover:text-foreground"
+            onClick={onPrevious}
           >
-            <SkipForward className="w-5 h-5" />
+            <SkipBack className="w-5 h-5" />
           </Button>
           <Button
             size="icon"
@@ -46,8 +51,9 @@ export function AudioPlayer({
             variant="ghost"
             size="icon"
             className="text-muted-foreground hover:text-foreground"
+            onClick={onNext}
           >
-            <SkipBack className="w-5 h-5" />
+            <SkipForward className="w-5 h-5" />
           </Button>
         </div>
 

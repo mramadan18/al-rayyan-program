@@ -55,6 +55,7 @@ if (!gotTheLock) {
 
     // Setup Prayer Scheduler
     initPrayerScheduler(mainWindow);
+    mainWindow.webContents.openDevTools();
 
     if (isProd) {
       await mainWindow.loadURL("app://./home");

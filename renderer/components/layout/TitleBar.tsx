@@ -5,7 +5,7 @@ export function TitleBar() {
   const { isMaximized, minimize, maximize, close } = useWindowControls();
 
   return (
-    <div className="fixed top-0 left-0 right-0 h-9 z-50 flex items-center justify-between bg-background border-b border-border select-none app-drag-region">
+    <div className="fixed top-0 left-0 right-0 h-9 z-1000 flex items-center justify-between bg-background border-b border-border select-none app-drag-region">
       {/* Window Controls (Left side - standard for some Arabic setups/preferences, but usually on the right in Windows. Let's keep it functional as per previous design) */}
       <div className="flex items-center h-full no-drag">
         <button
