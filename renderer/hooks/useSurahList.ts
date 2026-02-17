@@ -19,7 +19,8 @@ export function useSurahList() {
     const fetchSurahs = async () => {
       try {
         setLoading(true);
-        const response = await axios.get("http://api.alquran.cloud/v1/surah");
+        const apiUrl = process.env.NEXT_PUBLIC_QURAN_API;
+        const response = await axios.get(`${apiUrl}/surah`);
         setSurahs(response.data.data);
         setError(null);
       } catch (err) {

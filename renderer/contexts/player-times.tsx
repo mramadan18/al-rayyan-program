@@ -93,7 +93,7 @@ export const PlayerTimesProvider = ({
     try {
       setLoading(true);
       const response = await axios.get(
-        "https://al-rayyan.mramadan.me/api/v1/prayer-times",
+        process.env.NEXT_PUBLIC_PRAYER_TIMES_API,
       );
       setData(response.data);
       setError(null);

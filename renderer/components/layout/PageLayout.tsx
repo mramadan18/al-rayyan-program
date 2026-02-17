@@ -16,7 +16,8 @@ export function PageLayout({
   containerClassName,
   showTitle = true,
 }: PageLayoutProps) {
-  const fullTitle = `الريّان - ${title}`;
+  const appName = process.env.NEXT_PUBLIC_APP_NAME;
+  const fullTitle = `${appName} - ${title}`;
 
   return (
     <div className={cn(className)}>

@@ -34,8 +34,9 @@ export function useQuranData(surahNumber: number = 1) {
       try {
         setLoading(true);
         // Using Al-Afasy recitation as default
+        const apiUrl = process.env.NEXT_PUBLIC_QURAN_API;
         const response = await axios.get(
-          `http://api.alquran.cloud/v1/surah/${surahNumber}/ar.alafasy`,
+          `${apiUrl}/surah/${surahNumber}/ar.alafasy`,
         );
         setData(response.data.data);
         setError(null);
