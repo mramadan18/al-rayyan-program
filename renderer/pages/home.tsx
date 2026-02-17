@@ -3,9 +3,13 @@ import { NextPrayerCard } from "@/components/home/NextPrayerCard";
 import { DailyWirdCard } from "@/components/home/DailyWirdCard";
 import { PrayerTimeline } from "@/components/home/PrayerTimeline";
 import { usePrayerTimes } from "@/contexts/player-times";
+import { useDailyWird } from "@/hooks/useDailyWird";
+import { useRouter } from "next/router";
 
 export default function HomePage() {
   const { prayers, nextPrayer, data, loading } = usePrayerTimes();
+  const { wirdState, loading: wirdLoading } = useDailyWird();
+  const router = useRouter();
 
   const hijriDate = new Intl.DateTimeFormat("ar-SA-u-ca-islamic-uma", {
     day: "numeric",
@@ -18,6 +22,11 @@ export default function HomePage() {
     month: "long",
     year: "numeric",
   }).format(new Date());
+
+  const handleContinueReading = () => {
+    // Navigate to Quran page - it will automatically load the last read position
+    router.push("/quran");
+  };
 
   if (loading || !data) {
     return (
@@ -46,12 +55,14 @@ export default function HomePage() {
           </section>
 
           <section className="lg:col-span-1">
-            <DailyWirdCard
-              progress={40}
-              surahName="سورة الكهف"
-              verseNumber={45}
-              onContinue={() => console.log("Continue reading...")}
-            />
+            {!wirdLoading && (
+              <DailyWirdCard
+                progress={wirdState.progress}
+                surahName={wirdState.surahName}
+                verseNumber={wirdState.verseNumber}
+                onContinue={handleContinueReading}
+              />
+            )}
           </section>
         </div>
 

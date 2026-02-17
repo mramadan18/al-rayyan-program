@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 
 interface QuranState {
   surah: number;
+  surahName: string;
+  totalVerses: number;
   reciter: string;
   tafsir: "muyassar" | "jalalayn";
   verse: number;
@@ -9,6 +11,8 @@ interface QuranState {
 
 export function useQuranState() {
   const [currentSurahNumber, setCurrentSurahNumber] = useState(1);
+  const [currentSurahName, setCurrentSurahName] = useState("سورة الفاتحة");
+  const [totalVerses, setTotalVerses] = useState(7);
   const [currentReciter, setCurrentReciter] = useState("ar.alafasy");
   const [tafsirId, setTafsirId] = useState<"muyassar" | "jalalayn">("muyassar");
   const [lastReadVerse, setLastReadVerse] = useState(1);
@@ -22,6 +26,8 @@ export function useQuranState() {
         const savedState = await window.ipc.invoke("store-get", "quran-state");
         if (savedState) {
           if (savedState.surah) setCurrentSurahNumber(savedState.surah);
+          if (savedState.surahName) setCurrentSurahName(savedState.surahName);
+          if (savedState.totalVerses) setTotalVerses(savedState.totalVerses);
           if (savedState.reciter) setCurrentReciter(savedState.reciter);
           if (savedState.tafsir) setTafsirId(savedState.tafsir);
           if (savedState.verse) {
@@ -43,6 +49,8 @@ export function useQuranState() {
     if (!isStateLoaded) return;
     const state: QuranState = {
       surah: overrides.surah ?? currentSurahNumber,
+      surahName: overrides.surahName ?? currentSurahName,
+      totalVerses: overrides.totalVerses ?? totalVerses,
       reciter: overrides.reciter ?? currentReciter,
       tafsir: overrides.tafsir ?? tafsirId,
       verse: overrides.verse ?? lastReadVerse,
@@ -56,6 +64,12 @@ export function useQuranState() {
       saveState();
     }
   }, [currentSurahNumber, currentReciter, tafsirId, isStateLoaded]);
+
+  // Update surah info (called from quran page when data loads)
+  const updateSurahInfo = (name: string, ayahCount: number) => {
+    setCurrentSurahName(name);
+    setTotalVerses(ayahCount);
+  };
 
   // Navigation handlers
   const nextSurah = () => {
@@ -91,6 +105,8 @@ export function useQuranState() {
 
   return {
     currentSurahNumber,
+    currentSurahName,
+    totalVerses,
     currentReciter,
     tafsirId,
     lastReadVerse,
@@ -98,6 +114,7 @@ export function useQuranState() {
     isStateLoaded,
     setCurrentVerseIndex,
     setLastReadVerse,
+    updateSurahInfo,
     nextSurah,
     prevSurah,
     selectSurah,

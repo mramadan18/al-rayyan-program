@@ -9,6 +9,8 @@ interface UseScrollRestorationProps {
   currentReciter: string;
   tafsirId: string;
   setLastReadVerse: (verse: number) => void;
+  saveState: (overrides?: { verse?: number }) => void;
+  isPlaying: boolean;
 }
 
 export function useScrollRestoration({
@@ -20,6 +22,8 @@ export function useScrollRestoration({
   currentReciter,
   tafsirId,
   setLastReadVerse,
+  saveState,
+  isPlaying,
 }: UseScrollRestorationProps) {
   const isRestoringScroll = useRef(false);
   const scrollDebounceRef = useRef(false);
@@ -72,7 +76,9 @@ export function useScrollRestoration({
     if (!container) return;
 
     const onScroll = () => {
-      if (scrollDebounceRef.current || isRestoringScroll.current) return;
+      // Skip scroll tracking when audio is playing - audio handler manages verse
+      if (scrollDebounceRef.current || isRestoringScroll.current || isPlaying)
+        return;
       scrollDebounceRef.current = true;
 
       setTimeout(() => {
@@ -81,27 +87,33 @@ export function useScrollRestoration({
         const verseElements = document.querySelectorAll('[id^="verse-"]');
         let currentVisibleVerse = lastReadVerse;
 
+        // Use the center of the visible area as the reading point
+        const viewportCenter = window.innerHeight / 2;
+        let closestDistance = Infinity;
+
         for (let i = 0; i < verseElements.length; i++) {
           const el = verseElements[i];
           const rect = el.getBoundingClientRect();
 
-          if (rect.top >= 64 && rect.top < window.innerHeight) {
+          // Check if the verse is at least partially visible
+          if (rect.bottom < 64 || rect.top > window.innerHeight) continue;
+
+          // Find the verse closest to the center of the viewport
+          const verseCenter = (rect.top + rect.bottom) / 2;
+          const distance = Math.abs(verseCenter - viewportCenter);
+
+          if (distance < closestDistance) {
+            closestDistance = distance;
             const verseNum = parseInt(el.id.replace("verse-", ""));
             if (!isNaN(verseNum)) {
               currentVisibleVerse = verseNum;
-              break;
             }
           }
         }
 
         if (currentVisibleVerse !== lastReadVerse) {
           setLastReadVerse(currentVisibleVerse);
-          window.ipc.invoke("store-set", "quran-state", {
-            surah: currentSurahNumber,
-            reciter: currentReciter,
-            tafsir: tafsirId,
-            verse: currentVisibleVerse,
-          });
+          saveState({ verse: currentVisibleVerse });
         }
       }, 500);
     };

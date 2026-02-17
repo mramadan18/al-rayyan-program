@@ -5,7 +5,7 @@ import {
   Play,
   ListStart,
   BookOpen,
-  MoreVertical,
+  Bookmark,
 } from "lucide-react";
 import {
   Sheet,
@@ -40,6 +40,7 @@ interface VerseItemProps {
   error?: string | null;
   onPlayVerse?: () => void;
   onPlayFromVerse?: () => void;
+  onMarkAsCurrentVerse?: () => void;
 }
 
 export function VerseItem({
@@ -51,6 +52,7 @@ export function VerseItem({
   error,
   onPlayVerse,
   onPlayFromVerse,
+  onMarkAsCurrentVerse,
 }: VerseItemProps) {
   const [sheetOpen, setSheetOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -174,6 +176,19 @@ export function VerseItem({
           >
             <ListStart className="w-4 h-4" />
             <span>الاستماع من بداية هذه الآية</span>
+          </DropdownMenuItem>
+
+          <DropdownMenuSeparator />
+
+          <DropdownMenuItem
+            onClick={() => {
+              if (onMarkAsCurrentVerse) onMarkAsCurrentVerse();
+              setDropdownOpen(false);
+            }}
+            className="cursor-pointer flex items-center gap-2 font-quran text-right"
+          >
+            <Bookmark className="w-4 h-4" />
+            <span>تعليم كموقع قراءة حالي</span>
           </DropdownMenuItem>
 
           <DropdownMenuSeparator />

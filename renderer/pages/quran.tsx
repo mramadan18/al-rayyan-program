@@ -24,11 +24,13 @@ export default function QuranPage() {
     isStateLoaded,
     setCurrentVerseIndex,
     setLastReadVerse,
+    updateSurahInfo,
     nextSurah,
     prevSurah,
     selectSurah,
     selectReciter,
     selectTafsir,
+    saveState,
   } = useQuranState();
 
   // Playback mode: 'single' = play one verse only, 'continuous' = play from verse onwards
@@ -57,17 +59,12 @@ export default function QuranPage() {
     error: tafsirError,
   } = useTafsir(currentSurahNumber, tafsirId);
 
-  // Scroll restoration
-  useScrollRestoration({
-    isStateLoaded,
-    lastReadVerse,
-    loading,
-    surahNumber: surahData?.number,
-    currentSurahNumber,
-    currentReciter,
-    tafsirId,
-    setLastReadVerse,
-  });
+  // Update surah info when data loads (keeps quran-state in sync for daily wird)
+  useEffect(() => {
+    if (surahData) {
+      updateSurahInfo(surahData.name, surahData.numberOfAyahs);
+    }
+  }, [surahData?.name, surahData?.numberOfAyahs]);
 
   // Audio playback
   const currentVerseAudio = surahData?.ayahs[currentVerseIndex]?.audio || null;
@@ -90,6 +87,7 @@ export default function QuranPage() {
         const nextIndex = currentVerseIndex + 1;
         setCurrentVerseIndex(nextIndex);
         setLastReadVerse(nextIndex + 1);
+        saveState({ verse: nextIndex + 1 });
         document
           .getElementById(`verse-${nextIndex + 1}`)
           ?.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -97,17 +95,33 @@ export default function QuranPage() {
         setIsPlaying(false);
         setCurrentVerseIndex(0);
         setLastReadVerse(1);
+        saveState({ verse: 1 });
       }
     }
+  });
+
+  // Scroll restoration (after audio so isPlaying is available)
+  useScrollRestoration({
+    isStateLoaded,
+    lastReadVerse,
+    loading,
+    surahNumber: surahData?.number,
+    currentSurahNumber,
+    currentReciter,
+    tafsirId,
+    setLastReadVerse,
+    saveState,
+    isPlaying,
   });
 
   // Verse navigation handlers
   const handleNextVerse = () => {
     if (surahData && currentVerseIndex < surahData.ayahs.length - 1) {
-      setPlaybackMode("continuous"); // Ensure continuous mode for header navigation
+      setPlaybackMode("continuous");
       const nextIndex = currentVerseIndex + 1;
       setCurrentVerseIndex(nextIndex);
       setLastReadVerse(nextIndex + 1);
+      saveState({ verse: nextIndex + 1 });
       document
         .getElementById(`verse-${nextIndex + 1}`)
         ?.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -116,9 +130,10 @@ export default function QuranPage() {
 
   const handlePreviousVerse = () => {
     if (currentVerseIndex > 0) {
-      setPlaybackMode("continuous"); // Ensure continuous mode for header navigation
+      setPlaybackMode("continuous");
       setCurrentVerseIndex((prev) => prev - 1);
       setLastReadVerse(currentVerseIndex);
+      saveState({ verse: currentVerseIndex });
       document
         .getElementById(`verse-${currentVerseIndex}`)
         ?.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -130,6 +145,7 @@ export default function QuranPage() {
     setPlaybackMode("single");
     setCurrentVerseIndex(verseIndex);
     setLastReadVerse(verseIndex + 1);
+    saveState({ verse: verseIndex + 1 });
     setIsPlaying(true);
     document
       .getElementById(`verse-${verseIndex + 1}`)
@@ -141,7 +157,18 @@ export default function QuranPage() {
     setPlaybackMode("continuous");
     setCurrentVerseIndex(verseIndex);
     setLastReadVerse(verseIndex + 1);
+    saveState({ verse: verseIndex + 1 });
     setIsPlaying(true);
+    document
+      .getElementById(`verse-${verseIndex + 1}`)
+      ?.scrollIntoView({ behavior: "smooth", block: "center" });
+  };
+
+  // Mark verse as current reading position
+  const handleMarkAsCurrentVerse = (verseIndex: number) => {
+    setCurrentVerseIndex(verseIndex);
+    setLastReadVerse(verseIndex + 1);
+    saveState({ verse: verseIndex + 1 });
     document
       .getElementById(`verse-${verseIndex + 1}`)
       ?.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -282,6 +309,7 @@ export default function QuranPage() {
                   error={tafsirError}
                   onPlayVerse={() => handlePlayVerse(idx)}
                   onPlayFromVerse={() => handlePlayFromVerse(idx)}
+                  onMarkAsCurrentVerse={() => handleMarkAsCurrentVerse(idx)}
                 />
               ))}
             </motion.div>

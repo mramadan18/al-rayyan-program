@@ -8,12 +8,12 @@ export function registerStoreHandlers() {
   console.log("Registering store handlers...");
   ipcMain.handle("store-get", (event, key) => {
     const val = store.get(key);
-    console.log(`store-get: [${key}] =>`, val);
+    console.log(`store-get: [${key}] =>`, JSON.stringify(val, null, 2));
     return val;
   });
 
   ipcMain.handle("store-set", (event, key, val) => {
-    console.log("store-set:", key, val);
+    console.log(`store-set: [${key}] =>`, JSON.stringify(val, null, 2));
     store.set(key, val);
   });
 
