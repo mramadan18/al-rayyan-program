@@ -24,7 +24,11 @@ export interface Surah {
   ayahs: Verse[];
 }
 
-export function useQuranData(surahNumber: number = 1) {
+// Default reciter is Al-Afasy
+export function useQuranData(
+  surahNumber: number = 1,
+  reciterId: string = "ar.alafasy",
+) {
   const [data, setData] = useState<Surah | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -33,10 +37,9 @@ export function useQuranData(surahNumber: number = 1) {
     const fetchSurah = async () => {
       try {
         setLoading(true);
-        // Using Al-Afasy recitation as default
         const apiUrl = process.env.NEXT_PUBLIC_QURAN_API;
         const response = await axios.get(
-          `${apiUrl}/surah/${surahNumber}/ar.alafasy`,
+          `${apiUrl}/surah/${surahNumber}/${reciterId}`,
         );
         setData(response.data.data);
         setError(null);
@@ -49,7 +52,7 @@ export function useQuranData(surahNumber: number = 1) {
     };
 
     fetchSurah();
-  }, [surahNumber]);
+  }, [surahNumber, reciterId]);
 
   return { data, loading, error };
 }

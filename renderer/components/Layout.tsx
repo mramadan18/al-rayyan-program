@@ -32,7 +32,11 @@ export default function Layout({ children }: LayoutProps) {
           )}
           dir="rtl"
         >
-          <div className="h-full w-full overflow-auto scrollbar-hide" dir="rtl">
+          <div
+            id="main-scroll-container"
+            className="h-full w-full overflow-auto scrollbar-hide"
+            dir="rtl"
+          >
             {children}
           </div>
         </main>
