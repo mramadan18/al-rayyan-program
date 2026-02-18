@@ -8,8 +8,12 @@ let contextMenu: Menu | null = null;
 let isRadioPlaying = false;
 
 export const createTray = (mainWindow: BrowserWindow) => {
+  const iconPath = app.isPackaged
+    ? path.join(__dirname, "images/logo.png")
+    : path.join(__dirname, "../renderer/public/images/logo.png");
+
   const icon = nativeImage
-    .createFromPath(path.join(__dirname, "../renderer/public/images/logo.png"))
+    .createFromPath(iconPath)
     .resize({ width: 16, height: 16 });
 
   tray = new Tray(icon);

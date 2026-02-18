@@ -23,6 +23,8 @@ interface SettingsContextType {
   zikrDuration: number;
   zikrSilent: boolean;
   zikrPosition: string;
+  duaSilent: boolean;
+  duaPosition: string;
   loading: boolean;
   updateLocationSettings: (settings: LocationSettings) => Promise<void>;
   updateStartAtLogin: (enabled: boolean) => Promise<void>;
@@ -34,6 +36,8 @@ interface SettingsContextType {
   updateZikrDuration: (seconds: number) => Promise<void>;
   updateZikrSilent: (silent: boolean) => Promise<void>;
   updateZikrPosition: (position: string) => Promise<void>;
+  updateDuaSilent: (silent: boolean) => Promise<void>;
+  updateDuaPosition: (position: string) => Promise<void>;
 }
 
 const SettingsContext = createContext<SettingsContextType | null>(null);
@@ -58,6 +62,8 @@ export const SettingsProvider = ({
   const [zikrDuration, setZikrDuration] = useState(30);
   const [zikrSilent, setZikrSilent] = useState(false);
   const [zikrPosition, setZikrPosition] = useState("bottom-right");
+  const [duaSilent, setDuaSilent] = useState(false);
+  const [duaPosition, setDuaPosition] = useState("bottom-right");
   const [loading, setLoading] = useState(true);
 
   const loadSettings = useCallback(async () => {
@@ -78,6 +84,8 @@ export const SettingsProvider = ({
         savedZikrDuration,
         savedZikrSilent,
         savedZikrPosition,
+        savedDuaSilent,
+        savedDuaPosition,
       ] = await Promise.all([
         window.ipc.invoke("store-get", "location-settings"),
         window.ipc.invoke("store-get", "start-at-login"),
@@ -89,6 +97,8 @@ export const SettingsProvider = ({
         window.ipc.invoke("store-get", "zikr-duration"),
         window.ipc.invoke("store-get", "zikr-silent"),
         window.ipc.invoke("store-get", "zikr-position"),
+        window.ipc.invoke("store-get", "dua-silent"),
+        window.ipc.invoke("store-get", "dua-position"),
       ]);
 
       if (savedLoc) setLocationSettings(savedLoc as LocationSettings);
@@ -123,6 +133,13 @@ export const SettingsProvider = ({
       if (savedZikrPosition !== undefined)
         setZikrPosition(String(savedZikrPosition));
       else window.ipc.invoke("store-set", "zikr-position", "bottom-right");
+
+      if (savedDuaSilent !== undefined) setDuaSilent(!!savedDuaSilent);
+      else window.ipc.invoke("store-set", "dua-silent", false);
+
+      if (savedDuaPosition !== undefined)
+        setDuaPosition(String(savedDuaPosition));
+      else window.ipc.invoke("store-set", "dua-position", "bottom-right");
     } catch (err) {
       console.error("Failed to load settings:", err);
     } finally {
@@ -213,6 +230,20 @@ export const SettingsProvider = ({
     }
   };
 
+  const updateDuaSilent = async (silent: boolean) => {
+    setDuaSilent(silent);
+    if (window.ipc) {
+      await window.ipc.invoke("store-set", "dua-silent", silent);
+    }
+  };
+
+  const updateDuaPosition = async (position: string) => {
+    setDuaPosition(position);
+    if (window.ipc) {
+      await window.ipc.invoke("store-set", "dua-position", position);
+    }
+  };
+
   return (
     <SettingsContext.Provider
       value={{
@@ -226,6 +257,8 @@ export const SettingsProvider = ({
         zikrDuration,
         zikrSilent,
         zikrPosition,
+        duaSilent,
+        duaPosition,
         loading,
         updateLocationSettings,
         updateStartAtLogin,
@@ -237,6 +270,8 @@ export const SettingsProvider = ({
         updateZikrDuration,
         updateZikrSilent,
         updateZikrPosition,
+        updateDuaSilent,
+        updateDuaPosition,
       }}
     >
       {children}

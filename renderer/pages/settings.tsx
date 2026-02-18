@@ -2,6 +2,7 @@ import { PageLayout } from "@/components/layout/PageLayout";
 import { LocationSettings } from "@/components/settings/LocationSettings";
 import { AdhanSettings } from "@/components/settings/AdhanSettings";
 import { ZikrSettings } from "@/components/settings/ZikrSettings";
+import { DuaSettings } from "@/components/settings/DuaSettings";
 import { AppearanceSettings } from "@/components/settings/AppearanceSettings";
 import { SystemSettings } from "@/components/settings/SystemSettings";
 import { DeveloperSettings } from "@/components/settings/DeveloperSettings";
@@ -13,6 +14,7 @@ export default function SettingsPage() {
         <LocationSettings />
         <AdhanSettings />
         <ZikrSettings />
+        <DuaSettings />
         <AppearanceSettings />
         <SystemSettings />
         <DeveloperSettings />

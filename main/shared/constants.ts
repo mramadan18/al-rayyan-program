@@ -3,6 +3,7 @@ export const IpcChannels = {
   CLOSE_ADHAN_WIDGET: "close-adhan-widget",
   OPEN_DUA_WIDGET: "open-dua-widget",
   CLOSE_DUA_WIDGET: "close-dua-widget",
+  PIN_DUA_WIDGET: "pin-dua-widget",
   GET_PRAYER_TIMES: "get-prayer-times",
   GET_SETTINGS: "get-settings",
   UPDATE_SETTINGS: "update-settings",
