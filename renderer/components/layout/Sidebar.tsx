@@ -75,7 +75,7 @@ export function Sidebar() {
       {/* Footer / Version */}
       <div className="mt-auto pb-4 w-full px-6">
         <div className="text-sm text-center text-muted-foreground/40 font-mono">
-          v1.0.0-alpha
+          v{process.env.APP_VERSION || "1.0.0"}
         </div>
       </div>
     </aside>
