@@ -14,6 +14,8 @@ export const IpcChannels = {
   OPEN_MINI_WIDGET: "open-mini-widget",
   CLOSE_MINI_WIDGET: "close-mini-widget",
   TOGGLE_ALWAYS_ON_TOP: "toggle-always-on-top",
+  TOGGLE_RADIO_FROM_TRAY: "toggle-radio-from-tray",
+  SYNC_RADIO_STATE: "sync-radio-state",
 } as const;
 
 export type IpcChannelType = (typeof IpcChannels)[keyof typeof IpcChannels];

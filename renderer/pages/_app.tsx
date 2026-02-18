@@ -6,6 +6,7 @@ import "../styles/globals.css";
 import Layout from "../components/Layout";
 import { ThemeProvider } from "@/components/common/ThemeProvider";
 import { SettingsProvider } from "@/contexts/settings-context";
+import { RadioProvider } from "@/contexts/radio-context";
 
 function MyApp({ Component, pageProps }: AppProps) {
   const router = useRouter();
@@ -14,23 +15,27 @@ function MyApp({ Component, pageProps }: AppProps) {
   if (isWidget) {
     return (
       <SettingsProvider>
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <Component {...pageProps} />
-        </ThemeProvider>
+        <RadioProvider>
+          <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+            <Component {...pageProps} />
+          </ThemeProvider>
+        </RadioProvider>
       </SettingsProvider>
     );
   }
 
   return (
     <SettingsProvider>
-      <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-        <Layout>
-          <Head>
-            <title>Al Rayyan</title>
-          </Head>
-          <Component {...pageProps} />
-        </Layout>
-      </ThemeProvider>
+      <RadioProvider>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          <Layout>
+            <Head>
+              <title>Al Rayyan</title>
+            </Head>
+            <Component {...pageProps} />
+          </Layout>
+        </ThemeProvider>
+      </RadioProvider>
     </SettingsProvider>
   );
 }

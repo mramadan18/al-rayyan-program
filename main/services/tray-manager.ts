@@ -1,21 +1,13 @@
-import { app, Tray, Menu, nativeImage, BrowserWindow } from "electron";
+import { app, Tray, Menu, nativeImage, BrowserWindow, ipcMain } from "electron";
 import path from "path";
+import { IpcChannels } from "../shared/constants";
 
 let tray: Tray | null = null;
 let isQuitting = false;
+let contextMenu: Menu | null = null;
+let isRadioPlaying = false;
 
 export const createTray = (mainWindow: BrowserWindow) => {
-  const iconPath = path.join(__dirname, "../renderer/public/images/logo.png"); // Fallback to logo
-  // In production, resources might be packed differently. usually extraResources.
-  // But for dev, let's try to resolve it.
-
-  // Actually, we should check if tray-icon.png exists.
-  // const trayIcon = nativeImage.createFromPath(path.join(__dirname, '../../public/icons/tray-icon.png'));
-
-  // Let's use a safe path resolution.
-  // In many nextron setups, static assets are in 'renderer/public' during dev, and 'resources' in prod.
-  // But nativeImage.createFromPath handles loading.
-
   const icon = nativeImage
     .createFromPath(path.join(__dirname, "../renderer/public/images/logo.png"))
     .resize({ width: 16, height: 16 });
@@ -23,30 +15,50 @@ export const createTray = (mainWindow: BrowserWindow) => {
   tray = new Tray(icon);
   tray.setToolTip("Al-Rayyan");
 
-  const contextMenu = Menu.buildFromTemplate([
-    {
-      label: "اظهار / اخفاء البرنامج",
-      click: () => {
-        mainWindow.isVisible() ? mainWindow.hide() : mainWindow.show();
+  const buildContextMenu = () => {
+    contextMenu = Menu.buildFromTemplate([
+      {
+        label: "إظهار الريّان",
+        click: () => {
+          mainWindow.show();
+          mainWindow.focus();
+        },
       },
-    },
-    {
-      label: "إظهار / إخفاء مواقيت الصلاة",
-      click: () => {
-        const { toggleMiniWidget } = require("./mini-widget-manager");
-        toggleMiniWidget();
+      {
+        id: "radio-toggle",
+        label: isRadioPlaying ? "⏸ إيقاف الإذاعة" : "▶ تشغيل الإذاعة",
+        click: () => {
+          mainWindow.webContents.send(IpcChannels.TOGGLE_RADIO_FROM_TRAY);
+        },
       },
-    },
-    {
-      label: "إغلاق",
-      click: () => {
-        isQuitting = true;
-        app.quit();
+      {
+        label: "إظهار / إخفاء مواقيت الصلاة",
+        click: () => {
+          const { toggleMiniWidget } = require("./mini-widget-manager");
+          toggleMiniWidget();
+        },
       },
-    },
-  ]);
+      { type: "separator" },
+      {
+        label: "إغلاق البرنامج",
+        click: () => {
+          isQuitting = true;
+          app.quit();
+        },
+      },
+    ]);
 
-  tray.setContextMenu(contextMenu);
+    tray?.setContextMenu(contextMenu);
+  };
+
+  buildContextMenu();
+
+  // Sync radio state from renderer to update tray label
+  ipcMain.on(IpcChannels.SYNC_RADIO_STATE, (_event, playing: boolean) => {
+    isRadioPlaying = playing;
+    buildContextMenu();
+  });
+
   tray.on("click", () => {
     mainWindow.isVisible() ? mainWindow.hide() : mainWindow.show();
   });
