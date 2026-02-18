@@ -11,6 +11,7 @@ import {
 } from "./services/tray-manager";
 import { initPrayerScheduler } from "./services/prayer-scheduler";
 import { openMiniWidget } from "./services/mini-widget-manager";
+import { initAutoUpdater } from "./services/auto-updater";
 import Store from "electron-store";
 
 const store = new Store();
@@ -55,10 +56,11 @@ if (!gotTheLock) {
 
     // Setup Prayer Scheduler
     initPrayerScheduler(mainWindow);
-    mainWindow.webContents.openDevTools();
 
     if (isProd) {
       await mainWindow.loadURL("app://./home");
+      // Initialize auto-updater only in production
+      initAutoUpdater(mainWindow);
     } else {
       const port = process.argv[2];
       await mainWindow.loadURL(`http://localhost:${port}/home`);

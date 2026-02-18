@@ -5,6 +5,7 @@ import { TitleBar } from "@/components/layout/TitleBar";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Suspense } from "react";
 import { PlayerTimesProvider } from "@/contexts/player-times";
+import { UpdateModal } from "@/components/common/UpdateModal";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -48,6 +49,7 @@ export default function Layout({ children }: LayoutProps) {
           </Suspense>
         )}
         <Toaster />
+        <UpdateModal />
       </div>
     </PlayerTimesProvider>
   );

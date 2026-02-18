@@ -15,7 +15,7 @@ export default function SettingsPage() {
         <ZikrSettings />
         <AppearanceSettings />
         <SystemSettings />
-        {process.env.NODE_ENV === "development" && <DeveloperSettings />}
+        <DeveloperSettings />
       </div>
     </PageLayout>
   );

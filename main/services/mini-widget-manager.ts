@@ -51,7 +51,6 @@ export const openMiniWidget = async () => {
       nodeIntegration: false,
       contextIsolation: true,
       preload: path.join(__dirname, "preload.js"),
-      partition: "persist:mini-widget",
     },
   });
 

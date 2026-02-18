@@ -9,4 +9,21 @@ files:
     filter:
       - package.json
       - app
-publish: null
+publish:
+  provider: github
+  owner: mramadan18
+  repo: al-rayyan-program
+win:
+  target: nsis
+  icon: resources/icon.ico
+nsis:
+  oneClick: false
+  perMachine: true
+  allowToChangeInstallationDirectory: true
+  language: 1025
+  runAfterFinish: true
+  installerIcon: "resources/icon.ico"
+  uninstallerIcon: "resources/icon.ico"
+  installerSidebar: "resources/installerSidebar.bmp"
+  installerHeader: "resources/installerHeader.bmp"
+  include: "resources/installer.nsh"
