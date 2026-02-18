@@ -19,6 +19,10 @@ interface SettingsContextType {
   selectedAdhan: string;
   miniWidgetAlwaysOnTop: boolean;
   miniWidgetSize: number;
+  zikrInterval: number;
+  zikrDuration: number;
+  zikrSilent: boolean;
+  zikrPosition: string;
   loading: boolean;
   updateLocationSettings: (settings: LocationSettings) => Promise<void>;
   updateStartAtLogin: (enabled: boolean) => Promise<void>;
@@ -26,6 +30,10 @@ interface SettingsContextType {
   updateSelectedAdhan: (path: string) => Promise<void>;
   updateMiniWidgetAlwaysOnTop: (enabled: boolean) => Promise<void>;
   updateMiniWidgetSize: (size: number) => Promise<void>;
+  updateZikrInterval: (minutes: number) => Promise<void>;
+  updateZikrDuration: (seconds: number) => Promise<void>;
+  updateZikrSilent: (silent: boolean) => Promise<void>;
+  updateZikrPosition: (position: string) => Promise<void>;
 }
 
 const SettingsContext = createContext<SettingsContextType | null>(null);
@@ -46,6 +54,10 @@ export const SettingsProvider = ({
   );
   const [miniWidgetAlwaysOnTop, setMiniWidgetAlwaysOnTop] = useState(true);
   const [miniWidgetSize, setMiniWidgetSize] = useState(1);
+  const [zikrInterval, setZikrInterval] = useState(15);
+  const [zikrDuration, setZikrDuration] = useState(30);
+  const [zikrSilent, setZikrSilent] = useState(false);
+  const [zikrPosition, setZikrPosition] = useState("bottom-right");
   const [loading, setLoading] = useState(true);
 
   const loadSettings = useCallback(async () => {
@@ -62,6 +74,10 @@ export const SettingsProvider = ({
         savedAdhan,
         savedPin,
         savedSize,
+        savedZikrInterval,
+        savedZikrDuration,
+        savedZikrSilent,
+        savedZikrPosition,
       ] = await Promise.all([
         window.ipc.invoke("store-get", "location-settings"),
         window.ipc.invoke("store-get", "start-at-login"),
@@ -69,6 +85,10 @@ export const SettingsProvider = ({
         window.ipc.invoke("store-get", "selected-adhan"),
         window.ipc.invoke("store-get", "mini-widget-always-on-top"),
         window.ipc.invoke("store-get", "mini-widget-size"),
+        window.ipc.invoke("store-get", "zikr-interval"),
+        window.ipc.invoke("store-get", "zikr-duration"),
+        window.ipc.invoke("store-get", "zikr-silent"),
+        window.ipc.invoke("store-get", "zikr-position"),
       ]);
 
       if (savedLoc) setLocationSettings(savedLoc as LocationSettings);
@@ -79,7 +99,6 @@ export const SettingsProvider = ({
       else window.ipc.invoke("store-set", "start-at-login", false);
 
       if (savedWidget !== undefined) setShowMiniWidget(!!savedWidget);
-      // No default save for widget to avoid opening it unexpectedly
 
       if (savedAdhan) setSelectedAdhan(savedAdhan as string);
       else window.ipc.invoke("store-set", "selected-adhan", selectedAdhan);
@@ -89,6 +108,21 @@ export const SettingsProvider = ({
 
       if (savedSize !== undefined) setMiniWidgetSize(Number(savedSize));
       else window.ipc.invoke("store-set", "mini-widget-size", 1);
+
+      if (savedZikrInterval !== undefined)
+        setZikrInterval(Number(savedZikrInterval));
+      else window.ipc.invoke("store-set", "zikr-interval", 15);
+
+      if (savedZikrDuration !== undefined)
+        setZikrDuration(Number(savedZikrDuration));
+      else window.ipc.invoke("store-set", "zikr-duration", 30);
+
+      if (savedZikrSilent !== undefined) setZikrSilent(!!savedZikrSilent);
+      else window.ipc.invoke("store-set", "zikr-silent", false);
+
+      if (savedZikrPosition !== undefined)
+        setZikrPosition(String(savedZikrPosition));
+      else window.ipc.invoke("store-set", "zikr-position", "bottom-right");
     } catch (err) {
       console.error("Failed to load settings:", err);
     } finally {
@@ -134,7 +168,6 @@ export const SettingsProvider = ({
   const updateMiniWidgetAlwaysOnTop = async (enabled: boolean) => {
     setMiniWidgetAlwaysOnTop(enabled);
     if (window.ipc) {
-      // This might need to talk to the window directly if it's open
       await window.ipc.invoke(IpcChannels.TOGGLE_ALWAYS_ON_TOP);
     }
   };
@@ -147,6 +180,39 @@ export const SettingsProvider = ({
     }
   };
 
+  const updateZikrInterval = async (minutes: number) => {
+    setZikrInterval(minutes);
+    if (window.ipc) {
+      await window.ipc.invoke("store-set", "zikr-interval", minutes);
+      window.ipc.send("update-zikr-settings", { interval: minutes });
+    }
+  };
+
+  const updateZikrDuration = async (seconds: number) => {
+    setZikrDuration(seconds);
+    if (window.ipc) {
+      await window.ipc.invoke("store-set", "zikr-duration", seconds);
+      window.ipc.send("update-zikr-settings", { duration: seconds });
+    }
+  };
+
+  const updateZikrSilent = async (silent: boolean) => {
+    setZikrSilent(silent);
+    if (window.ipc) {
+      await window.ipc.invoke("store-set", "zikr-silent", silent);
+      window.ipc.send("update-zikr-settings", { silent });
+    }
+  };
+
+  const updateZikrPosition = async (position: string) => {
+    setZikrPosition(position);
+    if (window.ipc) {
+      await window.ipc.invoke("store-set", "zikr-position", position);
+      window.ipc.send("update-zikr-settings", { position });
+      window.ipc.send(IpcChannels.OPEN_ZIKR_WIDGET);
+    }
+  };
+
   return (
     <SettingsContext.Provider
       value={{
@@ -156,6 +222,10 @@ export const SettingsProvider = ({
         selectedAdhan,
         miniWidgetAlwaysOnTop,
         miniWidgetSize,
+        zikrInterval,
+        zikrDuration,
+        zikrSilent,
+        zikrPosition,
         loading,
         updateLocationSettings,
         updateStartAtLogin,
@@ -163,6 +233,10 @@ export const SettingsProvider = ({
         updateSelectedAdhan,
         updateMiniWidgetAlwaysOnTop,
         updateMiniWidgetSize,
+        updateZikrInterval,
+        updateZikrDuration,
+        updateZikrSilent,
+        updateZikrPosition,
       }}
     >
       {children}
