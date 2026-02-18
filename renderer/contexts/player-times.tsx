@@ -63,7 +63,14 @@ const PRAYER_NAMES: Record<string, string> = {
   Isha: "العشاء",
 };
 
-const OBLIGATORY_PRAYERS = ["Fajr", "Dhuhr", "Asr", "Maghrib", "Isha"];
+const OBLIGATORY_PRAYERS = [
+  "Fajr",
+  "Sunrise",
+  "Dhuhr",
+  "Asr",
+  "Maghrib",
+  "Isha",
+];
 
 const formatTime = (time24: string) => {
   const [hours, minutes] = time24.split(":").map(Number);
@@ -139,20 +146,20 @@ export const PlayerTimesProvider = ({
     const now = new Date();
     const timings = data.timings;
 
-    const prayerList = Object.entries(timings)
-      .filter(([name]) => OBLIGATORY_PRAYERS.includes(name))
-      .map(([name, time]) => {
-        const [hours, minutes] = time.split(":").map(Number);
-        const prayerDate = new Date();
-        prayerDate.setHours(hours, minutes, 0, 0);
+    const prayerList = OBLIGATORY_PRAYERS.map((name) => {
+      const time = timings[name as keyof PrayerTimings];
+      // Note: We assume time exists for these keys as per PrayerTimings interface
+      const [hours, minutes] = time.split(":").map(Number);
+      const prayerDate = new Date();
+      prayerDate.setHours(hours, minutes, 0, 0);
 
-        return {
-          englishName: name,
-          name: PRAYER_NAMES[name],
-          time: formatTime(time),
-          date: prayerDate,
-        };
-      });
+      return {
+        englishName: name,
+        name: PRAYER_NAMES[name],
+        time: formatTime(time),
+        date: prayerDate,
+      };
+    });
 
     // Find current active index
     let activeIndex = -1;

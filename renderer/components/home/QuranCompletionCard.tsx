@@ -1,4 +1,4 @@
-import { MoveRight } from "lucide-react";
+import { MoveLeft } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -8,25 +8,25 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
-interface DailyWirdCardProps {
+interface QuranCompletionCardProps {
   progress: number;
   surahName: string;
   verseNumber: number;
   onContinue: () => void;
 }
 
-export function DailyWirdCard({
+export function QuranCompletionCard({
   progress,
   surahName,
   verseNumber,
   onContinue,
-}: DailyWirdCardProps) {
+}: QuranCompletionCardProps) {
   return (
     <Card className="h-full border-none shadow-lg bg-card text-card-foreground flex flex-col group">
       <CardHeader>
         <CardTitle className="text-lg font-bold flex items-center gap-2">
           <span className="w-1.5 h-6 bg-primary rounded-full" />
-          وردي اليومي
+          ختم القرآن الكريم
         </CardTitle>
       </CardHeader>
       <CardContent className="flex-1 flex flex-col items-center justify-center p-6 space-y-6">
@@ -60,7 +60,7 @@ export function DailyWirdCard({
         </div>
 
         <div className="text-center space-y-1">
-          <p className="text-muted-foreground text-sm">توقفت عند</p>
+          <p className="text-muted-foreground text-sm">آخر قراءة</p>
           <p className="text-xl font-semibold font-quran">{surahName}</p>
           <p className="text-xs text-muted-foreground">الآية {verseNumber}</p>
         </div>
@@ -71,8 +71,8 @@ export function DailyWirdCard({
           className="w-full gap-2 text-lg h-12 shadow-md hover:shadow-lg transition-all group-hover:gap-4"
           size="lg"
         >
-          متابعة القراءة
-          <MoveRight className="w-4 h-4" />
+          متابعة الختم
+          <MoveLeft className="w-4 h-4" />
         </Button>
       </CardFooter>
     </Card>

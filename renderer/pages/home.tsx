@@ -1,21 +1,24 @@
 import { PageLayout } from "@/components/layout/PageLayout";
 import { NextPrayerCard } from "@/components/home/NextPrayerCard";
-import { DailyWirdCard } from "@/components/home/DailyWirdCard";
+import { QuranCompletionCard } from "@/components/home/QuranCompletionCard";
 import { PrayerTimeline } from "@/components/home/PrayerTimeline";
 import { usePrayerTimes } from "@/contexts/player-times";
-import { useDailyWird } from "@/hooks/useDailyWird";
+import { useQuranCompletion } from "@/hooks/useQuranCompletion";
 import { useRouter } from "next/router";
 
 export default function HomePage() {
   const { prayers, nextPrayer, data, loading } = usePrayerTimes();
-  const { wirdState, loading: wirdLoading } = useDailyWird();
+  const { completionState, loading: completionLoading } = useQuranCompletion();
   const router = useRouter();
+
+  const adjustedDate = new Date();
+  adjustedDate.setDate(adjustedDate.getDate() - 1);
 
   const hijriDate = new Intl.DateTimeFormat("ar-SA-u-ca-islamic-uma", {
     day: "numeric",
     month: "long",
     year: "numeric",
-  }).format(new Date());
+  }).format(adjustedDate);
 
   const gregorianDate = new Intl.DateTimeFormat("ar-EG", {
     day: "numeric",
@@ -55,11 +58,11 @@ export default function HomePage() {
           </section>
 
           <section className="lg:col-span-1">
-            {!wirdLoading && (
-              <DailyWirdCard
-                progress={wirdState.progress}
-                surahName={wirdState.surahName}
-                verseNumber={wirdState.verseNumber}
+            {!completionLoading && (
+              <QuranCompletionCard
+                progress={completionState.progress}
+                surahName={completionState.surahName}
+                verseNumber={completionState.verseNumber}
                 onContinue={handleContinueReading}
               />
             )}
