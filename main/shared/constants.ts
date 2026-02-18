@@ -16,6 +16,8 @@ export const IpcChannels = {
   TOGGLE_ALWAYS_ON_TOP: "toggle-always-on-top",
   TOGGLE_RADIO_FROM_TRAY: "toggle-radio-from-tray",
   SYNC_RADIO_STATE: "sync-radio-state",
+  OPEN_ZIKR_WIDGET: "open-zikr-widget",
+  CLOSE_ZIKR_WIDGET: "close-zikr-widget",
 } as const;
 
 export type IpcChannelType = (typeof IpcChannels)[keyof typeof IpcChannels];

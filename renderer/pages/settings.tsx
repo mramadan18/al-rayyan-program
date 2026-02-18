@@ -350,6 +350,12 @@ export default function SettingsPage() {
             </Button>
             <Button
               variant="outline"
+              onClick={() => window.ipc.send(IpcChannels.OPEN_ZIKR_WIDGET)}
+            >
+              تجربة نافذة الذكر
+            </Button>
+            <Button
+              variant="outline"
               onClick={() => window.ipc.send(IpcChannels.WINDOW_CLOSE)}
             >
               إغلاق للعلبة (Tray)
