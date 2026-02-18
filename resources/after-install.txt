@@ -1,0 +1,15 @@
+Installation Complete!
+
+Thank you for choosing Al Rayyan.
+
+You can now start the application from your desktop or start menu.
+
+What's Next?
+- Configure your location for accurate prayer times
+- Customize your Adhan notifications
+- Explore the Holy Quran and other spiritual tools
+
+For support and feedback, please visit our GitHub repository:
+https://github.com/mramadan18/al-rayyan-program
+
+Jazakum Allah Khair!

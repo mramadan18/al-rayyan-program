@@ -3,13 +3,17 @@
   "name": "al-rayyan",
   "productName": "Al Rayyan",
   "description": "Al-Rayyan: A comprehensive Islamic desktop application providing prayer times, Quran, Adhan notifications, and spiritual tools.",
+  "author": "Mahmoud Ramadan <m.ramadan181199@gmail.com>",
   "version": "1.0.0",
-  "author": "Al Rayyan",
   "main": "app/background.js",
   "scripts": {
     "dev": "nextron",
     "build": "nextron build",
-    "postinstall": "electron-builder install-app-deps"
+    "postinstall": "electron-builder install-app-deps",
+    "release:beta": "npm version prerelease --preid=beta -m \"chore(release): %s\" && git push origin main --tags",
+    "release:patch": "npm version patch -m \"chore(release): %s\" && git push origin main --tags",
+    "release:minor": "npm version minor -m \"chore(release): %s\" && git push origin main --tags",
+    "release:major": "npm version major -m \"chore(release): %s\" && git push origin main --tags"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.15",

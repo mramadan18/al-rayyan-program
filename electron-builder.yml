@@ -26,3 +26,5 @@ nsis:
   uninstallerIcon: "resources/icon.ico"
   installerSidebar: "resources/installerSidebar.bmp"
   installerHeader: "resources/installerHeader.bmp"
+  license: resources/license.txt
+  include: resources/installer.nsh

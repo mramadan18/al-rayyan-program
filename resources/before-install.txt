@@ -1,0 +1,10 @@
+Welcome to Al Rayyan!
+
+Al-Rayyan is a comprehensive Islamic desktop application providing prayer times, Quran, Adhan notifications, and spiritual tools.
+
+System Requirements:
+- Windows 10 or later (64-bit)
+- 300MB available disk space
+- Internet connection for initial setup and updates
+
+Please click "Next" to continue with the installation.
