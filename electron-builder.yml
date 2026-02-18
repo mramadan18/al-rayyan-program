@@ -26,4 +26,3 @@ nsis:
   uninstallerIcon: "resources/icon.ico"
   installerSidebar: "resources/installerSidebar.bmp"
   installerHeader: "resources/installerHeader.bmp"
-  include: "resources/installer.nsh"
