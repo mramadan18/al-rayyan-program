@@ -1,6 +1,3 @@
-import { Button } from "@/components/ui/button";
-import { Home } from "lucide-react";
-import { useRouter } from "next/router";
 import { cn } from "@/lib/utils";
 import { SurahSelector } from "./SurahSelector";
 import { ReciterSelector } from "./ReciterSelector";
@@ -72,8 +69,6 @@ export function QuranHeader({
   onPreviousVerse,
   onSeek,
 }: QuranHeaderProps) {
-  const router = useRouter();
-
   return (
     <div className="sticky top-0 z-50 w-full bg-background/80 backdrop-blur-md border-b border-border/40 shadow-sm transition-all duration-300">
       <div className="w-full mx-auto px-4 h-16 flex items-center justify-between gap-4">
@@ -131,18 +126,6 @@ export function QuranHeader({
               </span>
             </>
           )}
-
-          <div className="h-4 w-px bg-border/40 mx-1 hidden lg:block" />
-
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-9 w-9 text-muted-foreground hover:text-primary hover:bg-primary/5 transition-all duration-300"
-            onClick={() => router.push("/home")}
-            title="العودة للرئيسية"
-          >
-            <Home className="w-5 h-5" />
-          </Button>
         </div>
       </div>
     </div>

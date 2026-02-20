@@ -46,7 +46,7 @@ export function ZakatCalculator() {
   };
 
   return (
-    <div className="w-full max-w-2xl mx-auto p-4 animate-in fade-in duration-500">
+    <div className="w-full mx-auto p-4 animate-in fade-in duration-500">
       <Card className="bg-card border-border shadow-2xl overflow-hidden">
         <ZakatHeader
           currency={currency}

@@ -34,7 +34,7 @@ export function RamadanImsakia() {
   }
 
   return (
-    <div className="relative w-full h-full min-h-[600px] bg-card text-card-foreground p-6 overflow-hidden rounded-xl border shadow-lg">
+    <div className="relative w-full h-full min-h-[600px] bg-card text-card-foreground p-6 overflow-y-auto rounded-xl border shadow-lg">
       {/* Background Watermark */}
       <div className="absolute top-0 right-0 opacity-10 pointer-events-none transform translate-x-1/4 -translate-y-1/4">
         <Moon className="w-96 h-96 text-amber-500" />

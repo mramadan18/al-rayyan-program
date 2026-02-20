@@ -1,10 +1,19 @@
-import { Settings, RotateCcw } from "lucide-react";
+import {
+  Settings,
+  RotateCcw,
+  RefreshCw,
+  Download,
+  CheckCircle2,
+} from "lucide-react";
 import { SettingsSection } from "./SettingsSection";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { useSettings } from "@/contexts/settings-context";
+import { useAutoUpdater } from "@/hooks/useAutoUpdater";
+import { toast } from "sonner";
+import { useEffect } from "react";
 
 export function SystemSettings() {
   const {
@@ -15,6 +24,17 @@ export function SystemSettings() {
     updateShowMiniWidget,
     updateMiniWidgetSize,
   } = useSettings();
+
+  const { status, checkForUpdate, updateInfo } = useAutoUpdater();
+
+  // Handle manual check feedback
+  useEffect(() => {
+    if (status === "not-available") {
+      toast.success("أنت تستخدم أحدث إصدار بالفعل");
+    } else if (status === "error") {
+      toast.error("فشل التحقق من وجود تحديثات");
+    }
+  }, [status]);
 
   return (
     <SettingsSection title="إعدادات النظام" icon={Settings}>
@@ -83,6 +103,46 @@ export function SystemSettings() {
               title="إعادة ضبط الحجم"
             >
               <RotateCcw className="w-4 h-4" />
+            </Button>
+          </div>
+        </div>
+
+        <Separator />
+
+        <div className="flex items-center justify-between">
+          <div className="space-y-0.5">
+            <Label>تحديث البرنامج</Label>
+            <p className="text-xs text-muted-foreground">
+              تحقق من وجود إصدارات جديدة من الريان
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="text-xs font-mono bg-secondary px-2 py-1 rounded text-muted-foreground border border-border/50">
+              v{process.env.APP_VERSION || "1.1.1"}
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-2 min-w-[140px]"
+              onClick={checkForUpdate}
+              disabled={status === "checking" || status === "downloading"}
+            >
+              {status === "checking" ? (
+                <>
+                  <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                  <span>جاري التحقق...</span>
+                </>
+              ) : status === "available" ? (
+                <>
+                  <Download className="w-3.5 h-3.5 text-primary" />
+                  <span>تحديث متاح!</span>
+                </>
+              ) : (
+                <>
+                  <RefreshCw className="w-3.5 h-3.5" />
+                  <span>التحقق من التحديث</span>
+                </>
+              )}
             </Button>
           </div>
         </div>

@@ -10,6 +10,10 @@ import { IpcChannels } from "shared/constants";
 interface LocationSettings {
   calculationMethod: string;
   juristicMethod: string;
+  country?: string;
+  city?: string;
+  lat?: number;
+  lon?: number;
 }
 
 interface SettingsContextType {
@@ -60,6 +64,8 @@ export const SettingsProvider = ({
   const [locationSettings, setLocationSettings] = useState<LocationSettings>({
     calculationMethod: "EGYPT",
     juristicMethod: "SHAFI",
+    country: "",
+    city: "",
   });
   const [startAtLogin, setStartAtLogin] = useState(true);
   const [showMiniWidget, setShowMiniWidget] = useState(true);
@@ -201,6 +207,75 @@ export const SettingsProvider = ({
   useEffect(() => {
     loadSettings();
   }, [loadSettings]);
+
+  useEffect(() => {
+    if (!window.ipc) return;
+
+    const handleSettingsUpdated = (payload: { key: string; val: any }) => {
+      const { key, val } = payload;
+      switch (key) {
+        case "location-settings":
+          setLocationSettings((prev) =>
+            JSON.stringify(prev) !== JSON.stringify(val) ? val : prev,
+          );
+          break;
+        case "start-at-login":
+          setStartAtLogin(val);
+          break;
+        case "show-mini-widget":
+          setShowMiniWidget(val);
+          break;
+        case "selected-adhan":
+          setSelectedAdhan(val);
+          break;
+        case "mini-widget-always-on-top":
+          setMiniWidgetAlwaysOnTop(val);
+          break;
+        case "mini-widget-size":
+          setMiniWidgetSize(val);
+          break;
+        case "zikr-interval":
+          setZikrInterval(val);
+          break;
+        case "zikr-duration":
+          setZikrDuration(val);
+          break;
+        case "zikr-silent":
+          setZikrSilent(val);
+          break;
+        case "zikr-position":
+          setZikrPosition(val);
+          break;
+        case "dua-silent":
+          setDuaSilent(val);
+          break;
+        case "dua-position":
+          setDuaPosition(val);
+          break;
+        case "azkar-widget-enabled":
+          setShowAzkarWidget(val);
+          break;
+        case "prayer-notifications-enabled":
+          setPrayerNotifications(val);
+          break;
+        case "show-pre-adhan":
+          setShowPreAdhan(val);
+          break;
+        case "pre-adhan-minutes":
+          setPreAdhanMinutes(val);
+          break;
+        case "dua-widget-enabled":
+          setShowDuaWidget(val);
+          break;
+      }
+    };
+
+    const removeListener = window.ipc.on(
+      "settings-updated",
+      handleSettingsUpdated,
+    );
+    return () => removeListener();
+  }, []);
 
   const updateLocationSettings = async (settings: LocationSettings) => {
     setLocationSettings(settings);

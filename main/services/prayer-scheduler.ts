@@ -54,6 +54,14 @@ export const initPrayerScheduler = (win: BrowserWindow) => {
     if (data.preAdhanMinutes !== undefined) {
       preAdhanMinutesVal = data.preAdhanMinutes;
     }
+
+    // Broadcast update to all other windows (like mini-widget)
+    const allWindows = BrowserWindow.getAllWindows();
+    allWindows.forEach((win) => {
+      if (win.webContents !== event.sender) {
+        win.webContents.send("prayer-times-changed", data);
+      }
+    });
   });
 
   ipcMain.on(IpcChannels.OPEN_ADHAN_WIDGET, () => {

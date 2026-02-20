@@ -99,8 +99,9 @@ export function useRamadanImsakia() {
       if (currentDayIndex + 1 < days.length) {
         const nextDay = days[currentDayIndex + 1];
         const fajrNextDay = parseTime(nextDay.rawDate, nextDay.timingsRaw.Fajr);
-        setNextEventLabel("المتبقي للسحور (فجر الغد)");
-        setCountdown(getTimeDifference(now, fajrNextDay));
+        const suhoorNextDay = new Date(fajrNextDay.getTime() - 60 * 60 * 1000);
+        setNextEventLabel("المتبقي للسحور");
+        setCountdown(getTimeDifference(now, suhoorNextDay));
       } else {
         setNextEventLabel("كل عام وأنتم بخير");
         setCountdown("---");
@@ -122,11 +123,15 @@ export function useRamadanImsakia() {
         );
         const isToday = dateObj.toDateString() === todayStr;
 
+        const fajrTime = parseTime(dateObj, item.timings.Fajr);
+        const suhoorTime = new Date(fajrTime.getTime() - 60 * 60 * 1000);
+        const suhoorStr = `${suhoorTime.getHours().toString().padStart(2, "0")}:${suhoorTime.getMinutes().toString().padStart(2, "0")}`;
+
         return {
           dayName: item.date.hijri.weekday.ar,
           hijriDate: `${item.date.hijri.day} ${item.date.hijri.month.ar}`,
           gregorianDate: `${item.date.gregorian.day} ${item.date.gregorian.month.en}`,
-          suhoor: formatTime(item.timings.Fajr),
+          suhoor: formatTime(suhoorStr),
           imsak: formatTime(item.timings.Imsak),
           iftar: formatTime(item.timings.Maghrib),
           isToday: isToday,

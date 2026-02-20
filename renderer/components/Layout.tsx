@@ -6,6 +6,7 @@ import { Sidebar } from "@/components/layout/Sidebar";
 import { Suspense } from "react";
 import { PlayerTimesProvider } from "@/contexts/player-times";
 import { UpdateModal } from "@/components/common/UpdateModal";
+import { LocationModal } from "@/components/common/LocationModal";
 import { useWindowZoom } from "@/hooks/use-window-zoom";
 
 interface LayoutProps {
@@ -13,13 +14,10 @@ interface LayoutProps {
 }
 
 export default function Layout({ children }: LayoutProps) {
-  const router = useRouter();
-
   // Initialize zoom shortcuts
   useWindowZoom();
 
   // Hide sidebar on specific routes like Quran reader if needed (Phase 3 requirement)
-  const isMinimal = router.pathname === "/quran";
 
   return (
     <PlayerTimesProvider>
@@ -33,8 +31,7 @@ export default function Layout({ children }: LayoutProps) {
         {/* Main Content Area */}
         <main
           className={cn(
-            "flex-1 pt-8 h-full overflow-hidden transition-all duration-300 relative z-20",
-            !isMinimal ? "mr-64" : "",
+            "flex-1 pt-8 h-full overflow-hidden transition-all duration-300 relative z-20 mr-20",
           )}
           dir="rtl"
         >
@@ -47,14 +44,10 @@ export default function Layout({ children }: LayoutProps) {
           </div>
         </main>
 
-        {/* Persistent Right Sidebar */}
-        {!isMinimal && (
-          <Suspense fallback={null}>
-            <Sidebar />
-          </Suspense>
-        )}
+        <Sidebar />
         <Toaster />
         <UpdateModal />
+        <LocationModal />
       </div>
     </PlayerTimesProvider>
   );

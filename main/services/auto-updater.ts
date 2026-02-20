@@ -108,10 +108,12 @@ export function initAutoUpdater(mainWindow: BrowserWindow) {
 
   // ─── Initial Check on Startup ───────────────
   // Slight delay to let the window finish loading
-  setTimeout(() => {
-    log.info("[AutoUpdater] Startup check initiated.");
-    autoUpdater.checkForUpdates().catch((err) => {
-      log.error("[AutoUpdater] Startup check failed:", err);
-    });
-  }, 5000);
+  if (process.env.NODE_ENV === "production") {
+    setTimeout(() => {
+      log.info("[AutoUpdater] Startup check initiated.");
+      autoUpdater.checkForUpdates().catch((err) => {
+        log.error("[AutoUpdater] Startup check failed:", err);
+      });
+    }, 5000);
+  }
 }

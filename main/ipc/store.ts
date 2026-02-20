@@ -1,4 +1,4 @@
-import { ipcMain, app } from "electron";
+import { ipcMain, app, BrowserWindow } from "electron";
 import Store from "electron-store";
 
 // Initialize store (create it outside handlers to persist across calls)
@@ -15,6 +15,12 @@ export function registerStoreHandlers() {
   ipcMain.handle("store-set", (event, key, val) => {
     console.log(`store-set: [${key}] =>`, JSON.stringify(val, null, 2));
     store.set(key, val);
+
+    // Broadcast update to all windows
+    const allWindows = BrowserWindow.getAllWindows();
+    allWindows.forEach((win) => {
+      win.webContents.send("settings-updated", { key, val });
+    });
   });
 
   ipcMain.handle("store-delete", (event, key) => {

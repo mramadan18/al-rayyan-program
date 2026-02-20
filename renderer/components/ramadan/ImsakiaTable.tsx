@@ -16,7 +16,7 @@ export function ImsakiaTable({ days }: ImsakiaTableProps) {
             <div className="text-center">اليوم</div>
             <div className="text-center">التاريخ الهجري</div>
             <div className="text-center">التاريخ الميلادي</div>
-            <div className="text-center text-amber-500">سحور (فجر)</div>
+            <div className="text-center text-amber-500">سحور</div>
             <div className="text-center text-red-500">إمساك</div>
             <div className="text-center text-green-500">إفطار (مغرب)</div>
           </div>

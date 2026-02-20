@@ -50,6 +50,14 @@ interface PlayerTimesContextType {
   }>;
   selectedAdhan: string;
   setSelectedAdhan: (path: string) => void;
+  isLocationModalOpen: boolean;
+  setIsLocationModalOpen: (open: boolean) => void;
+  fetchData: (manualLocation?: {
+    country: string;
+    city: string;
+    lat?: number;
+    lon?: number;
+  }) => Promise<void>;
 }
 
 // --- Constants & Utilities ---
@@ -92,24 +100,95 @@ export const PlayerTimesProvider = ({
   const [nextPrayer, setNextPrayer] =
     useState<PlayerTimesContextType["nextPrayer"]>(null);
   const [prayers, setPrayers] = useState<PlayerTimesContextType["prayers"]>([]);
-  const { selectedAdhan, updateSelectedAdhan } = useSettings();
+  const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
+  const {
+    selectedAdhan,
+    updateSelectedAdhan,
+    locationSettings,
+    updateLocationSettings,
+  } = useSettings();
 
   // 1. Fetch prayer times
-  const fetchData = useCallback(async () => {
-    try {
-      setLoading(true);
-      const response = await axios.get(
-        process.env.NEXT_PUBLIC_PRAYER_TIMES_API,
-      );
-      setData(response.data);
-      setError(null);
-    } catch (err) {
-      console.error("Error fetching prayer times:", err);
-      setError("Failed to fetch prayer times");
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  const fetchData = useCallback(
+    async (manualLocation?: {
+      country: string;
+      city: string;
+      lat?: number;
+      lon?: number;
+    }) => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        let lat: number | undefined = manualLocation?.lat;
+        let lon: number | undefined = manualLocation?.lon;
+
+        // Try to get geolocation if no manual location or coordinates are provided
+        if (!lat && !lon && !manualLocation && !locationSettings.city) {
+          try {
+            const position = await new Promise<GeolocationPosition>(
+              (resolve, reject) => {
+                navigator.geolocation.getCurrentPosition(resolve, reject, {
+                  timeout: 5000,
+                });
+              },
+            );
+            lat = position.coords.latitude;
+            lon = position.coords.longitude;
+          } catch (geoErr) {
+            console.warn("Geolocation failed or timed out:", geoErr);
+            // Fallback: don't set lat/lon, API might use IP
+          }
+        }
+
+        const baseUrl =
+          process.env.NEXT_PUBLIC_PRAYER_TIMES_API ||
+          "https://al-rayyan.mramadan.me/api/v1/prayer-times";
+        const params = new URLSearchParams();
+
+        if (manualLocation) {
+          params.append("country", manualLocation.country);
+          params.append("city", manualLocation.city);
+        } else if (locationSettings.country && locationSettings.city) {
+          params.append("country", locationSettings.country);
+          params.append("city", locationSettings.city);
+        }
+
+        if (lat !== undefined && lon !== undefined) {
+          params.append("lat", lat.toFixed(4));
+          params.append("lon", lon.toFixed(4));
+        }
+
+        params.append("method", locationSettings.calculationMethod || "EGYPT");
+        params.append("madhab", locationSettings.juristicMethod || "SHAFI");
+
+        const fullUrl = `${baseUrl}?${params.toString()}`;
+        console.log("Fetching prayer times from:", fullUrl);
+
+        const response = await axios.get(fullUrl);
+        setData(response.data);
+
+        // If we got data and it was a manual selection, save it
+        if (manualLocation) {
+          updateLocationSettings({
+            ...locationSettings,
+            country: manualLocation.country,
+            city: manualLocation.city,
+            lat: lat || locationSettings.lat,
+            lon: lon || locationSettings.lon,
+          });
+        }
+      } catch (err) {
+        console.error("Error fetching prayer times:", err);
+        setError("Failed to fetch prayer times");
+        // Open modal if fetching fails (and we don't already have data?)
+        setIsLocationModalOpen(true);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [locationSettings, updateLocationSettings],
+  );
 
   useEffect(() => {
     fetchData();
@@ -135,6 +214,47 @@ export const PlayerTimesProvider = ({
     };
 
     const removeListener = window.ipc.on("play-audio", handlePlayAudio);
+    return () => removeListener();
+  }, []);
+
+  // 4.5. Background Sync Listener
+  useEffect(() => {
+    if (!window.ipc) return;
+
+    const handlePrayerTimesChanged = (payload: any) => {
+      if (payload.timings) {
+        setData((prev) => {
+          // 1. If we don't have data yet, accept the new timings
+          if (!prev) {
+            return {
+              timings: payload.timings,
+              metadata: {
+                city: "",
+                country: "",
+                timezone: "",
+                coordinates: { lat: 0, lng: 0 },
+              },
+            } as PrayerTimesData;
+          }
+
+          // 2. Check if timings are actually different to prevent infinite loops
+          const hasChanged =
+            JSON.stringify(prev.timings) !== JSON.stringify(payload.timings);
+
+          if (!hasChanged) return prev;
+
+          return {
+            ...prev,
+            timings: payload.timings,
+          };
+        });
+      }
+    };
+
+    const removeListener = window.ipc.on(
+      "prayer-times-changed",
+      handlePrayerTimesChanged,
+    );
     return () => removeListener();
   }, []);
 
@@ -224,6 +344,9 @@ export const PlayerTimesProvider = ({
         prayers,
         selectedAdhan,
         setSelectedAdhan,
+        isLocationModalOpen,
+        setIsLocationModalOpen,
+        fetchData,
       }}
     >
       {children}

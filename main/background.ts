@@ -40,6 +40,8 @@ if (!gotTheLock) {
     const isHidden = process.argv.includes("--hidden");
 
     mainWindow = createWindow("main", {
+      minWidth: 700,
+      minHeight: 600,
       width: 1000,
       height: 600,
       show: !isHidden,
@@ -60,10 +62,11 @@ if (!gotTheLock) {
     // Setup Prayer Scheduler
     initPrayerScheduler(mainWindow);
 
+    // Initialize auto-updater (Registers IPC handlers)
+    initAutoUpdater(mainWindow);
+
     if (isProd) {
       await mainWindow.loadURL("app://./home");
-      // Initialize auto-updater only in production
-      initAutoUpdater(mainWindow);
     } else {
       const port = process.argv[2];
       await mainWindow.loadURL(`http://localhost:${port}/home`);
