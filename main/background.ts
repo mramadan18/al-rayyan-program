@@ -37,7 +37,7 @@ if (!gotTheLock) {
   }
 
   const startApp = async () => {
-    const isHidden = process.argv.includes("--opened-as-hidden");
+    const isHidden = process.argv.includes("--hidden");
 
     mainWindow = createWindow("main", {
       width: 1000,
@@ -119,7 +119,7 @@ function syncStartupSettings() {
     app.setLoginItemSettings({
       openAtLogin: startAtLogin as boolean,
       path: app.getPath("exe"),
-      openAsHidden: true,
+      args: ["--hidden"],
     });
   }
 }
