@@ -6,6 +6,7 @@ import { Sidebar } from "@/components/layout/Sidebar";
 import { Suspense } from "react";
 import { PlayerTimesProvider } from "@/contexts/player-times";
 import { UpdateModal } from "@/components/common/UpdateModal";
+import { useWindowZoom } from "@/hooks/use-window-zoom";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -13,6 +14,10 @@ interface LayoutProps {
 
 export default function Layout({ children }: LayoutProps) {
   const router = useRouter();
+
+  // Initialize zoom shortcuts
+  useWindowZoom();
+
   // Hide sidebar on specific routes like Quran reader if needed (Phase 3 requirement)
   const isMinimal = router.pathname === "/quran";
 

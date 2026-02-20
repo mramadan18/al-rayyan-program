@@ -22,6 +22,9 @@ export const IpcChannels = {
   ENABLE_AZKAR_WIDGET: "enable-azkar-widget",
   DISABLE_AZKAR_WIDGET: "disable-azkar-widget",
   SHOW_MINI_WIDGET_MENU: "show-mini-widget-menu",
+  WINDOW_ZOOM_IN: "window-zoom-in",
+  WINDOW_ZOOM_OUT: "window-zoom-out",
+  WINDOW_ZOOM_RESET: "window-zoom-reset",
 } as const;
 
 export type IpcChannelType = (typeof IpcChannels)[keyof typeof IpcChannels];
