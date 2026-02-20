@@ -83,6 +83,13 @@ export function useAutoUpdater() {
       }),
     );
 
+    // Manual check from Tray
+    cleanups.push(
+      window.ipc.on("update:check-from-tray", () => {
+        window.ipc.invoke("update:check");
+      }),
+    );
+
     return () => {
       cleanups.forEach((cleanup) => cleanup());
     };

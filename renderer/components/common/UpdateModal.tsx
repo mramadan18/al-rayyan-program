@@ -94,6 +94,19 @@ export function UpdateModal() {
             </div>
           )}
 
+          {/* Release Notes */}
+          {status === "available" && updateInfo?.releaseNotes && (
+            <div className="bg-primary/5 rounded-xl border border-primary/10 p-3 max-h-40 overflow-y-auto scrollbar-hide">
+              <h4 className="text-xs font-bold text-primary mb-1 uppercase tracking-wider">
+                ما الجديد؟
+              </h4>
+              <div
+                className="text-sm text-muted-foreground leading-relaxed whitespace-pre-line"
+                dangerouslySetInnerHTML={{ __html: updateInfo.releaseNotes }}
+              />
+            </div>
+          )}
+
           {/* Action Buttons */}
           <UpdateActions
             status={status}

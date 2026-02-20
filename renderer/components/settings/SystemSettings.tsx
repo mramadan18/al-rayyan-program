@@ -118,7 +118,7 @@ export function SystemSettings() {
           </div>
           <div className="flex items-center gap-3">
             <div className="text-xs font-mono bg-secondary px-2 py-1 rounded text-muted-foreground border border-border/50">
-              v{process.env.APP_VERSION || "1.1.1"}
+              v{process.env.APP_VERSION || "1.2.0"}
             </div>
             <Button
               variant="outline"

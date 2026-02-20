@@ -42,6 +42,13 @@ export const createTray = (mainWindow: BrowserWindow) => {
           toggleMiniWidget();
         },
       },
+      {
+        label: "التحقق من التحديثات",
+        click: () => {
+          mainWindow.show();
+          mainWindow.webContents.send("update:check-from-tray");
+        },
+      },
       { type: "separator" },
       {
         label: "إغلاق البرنامج",

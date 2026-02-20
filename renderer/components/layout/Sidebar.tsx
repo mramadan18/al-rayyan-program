@@ -94,7 +94,7 @@ export function Sidebar() {
             {status === "checking" ? (
               <RefreshCw className="size-3 animate-spin" />
             ) : (
-              `v${process.env.APP_VERSION || "1.1.1"}`
+              `v${process.env.APP_VERSION || "1.2.0"}`
             )}
           </button>
         </Tooltip>

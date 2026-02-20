@@ -108,7 +108,7 @@ export function TitleBar() {
         {status === "idle" ||
         status === "not-available" ||
         status === "error" ? (
-          <Tooltip content="التحقق من التحديثات" side="bottom">
+          <Tooltip content="التحقق من التحديثات" side="right">
             <button
               onClick={() => checkForUpdate()}
               className="h-7 w-7 flex items-center justify-center rounded-md text-muted-foreground/40 hover:text-primary hover:bg-primary/10 transition-all duration-300"
