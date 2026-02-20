@@ -27,6 +27,7 @@ export function registerStoreHandlers() {
     app.setLoginItemSettings({
       openAtLogin: enabled,
       path: app.getPath("exe"),
+      openAsHidden: true,
     });
     store.set("start-at-login", enabled);
     return true;

@@ -37,9 +37,12 @@ if (!gotTheLock) {
   }
 
   const startApp = async () => {
+    const isHidden = process.argv.includes("--opened-as-hidden");
+
     mainWindow = createWindow("main", {
       width: 1000,
       height: 600,
+      show: !isHidden,
       frame: false, // Frameless window
       webPreferences: {
         preload: path.join(__dirname, "preload.js"),
@@ -116,6 +119,7 @@ function syncStartupSettings() {
     app.setLoginItemSettings({
       openAtLogin: startAtLogin as boolean,
       path: app.getPath("exe"),
+      openAsHidden: true,
     });
   }
 }

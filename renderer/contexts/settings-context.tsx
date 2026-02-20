@@ -61,8 +61,8 @@ export const SettingsProvider = ({
     calculationMethod: "EGYPT",
     juristicMethod: "SHAFI",
   });
-  const [startAtLogin, setStartAtLogin] = useState(false);
-  const [showMiniWidget, setShowMiniWidget] = useState(false);
+  const [startAtLogin, setStartAtLogin] = useState(true);
+  const [showMiniWidget, setShowMiniWidget] = useState(true);
   const [selectedAdhan, setSelectedAdhan] = useState(
     "/audio/adhan/adhan-1.mp3",
   );
@@ -131,9 +131,17 @@ export const SettingsProvider = ({
         window.ipc.invoke("store-set", "location-settings", locationSettings);
 
       if (savedStart !== undefined) setStartAtLogin(!!savedStart);
-      else window.ipc.invoke("store-set", "start-at-login", false);
+      else {
+        setStartAtLogin(true);
+        window.ipc.invoke("set-startup", true);
+      }
 
       if (savedWidget !== undefined) setShowMiniWidget(!!savedWidget);
+      else {
+        setShowMiniWidget(true);
+        window.ipc.invoke("store-set", "show-mini-widget", true);
+        window.ipc.send(IpcChannels.OPEN_MINI_WIDGET);
+      }
 
       if (savedAdhan) setSelectedAdhan(savedAdhan as string);
       else window.ipc.invoke("store-set", "selected-adhan", selectedAdhan);
