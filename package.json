@@ -4,7 +4,7 @@
   "productName": "Al Rayyan",
   "description": "Al-Rayyan: A comprehensive Islamic desktop application providing prayer times, Quran, Adhan notifications, and spiritual tools.",
   "author": "Mahmoud Ramadan <m.ramadan181199@gmail.com>",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "main": "app/background.js",
   "scripts": {
     "dev": "nextron",
