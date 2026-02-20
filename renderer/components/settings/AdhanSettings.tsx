@@ -5,6 +5,13 @@ import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useSettings } from "@/contexts/settings-context";
 import { useAudioPreview } from "@/hooks/use-audio-preview";
 
@@ -17,7 +24,12 @@ const ADHAN_SOUNDS = [
 ];
 
 export function AdhanSettings() {
-  const { selectedAdhan, updateSelectedAdhan } = useSettings();
+  const {
+    selectedAdhan,
+    updateSelectedAdhan,
+    prayerNotifications,
+    updatePrayerNotifications,
+  } = useSettings();
   const { playingAudio, handlePlayPreview } = useAudioPreview();
 
   return (
@@ -30,7 +42,11 @@ export function AdhanSettings() {
               إشعار عند دخول وقت الصلاة
             </p>
           </div>
-          <Switch id="notif-prayers" defaultChecked />
+          <Switch
+            id="notif-prayers"
+            checked={prayerNotifications}
+            onCheckedChange={updatePrayerNotifications}
+          />
         </div>
 
         <Separator />
@@ -103,16 +119,6 @@ export function AdhanSettings() {
               </div>
             ))}
           </div>
-        </div>
-
-        <Separator />
-
-        <div className="flex items-center justify-between">
-          <div className="space-y-0.5">
-            <Label htmlFor="notif-azkar">أذكار الصباح والمساء</Label>
-            <p className="text-xs text-muted-foreground">تذكير يومي بالأذكار</p>
-          </div>
-          <Switch id="notif-azkar" defaultChecked />
         </div>
       </div>
     </SettingsSection>

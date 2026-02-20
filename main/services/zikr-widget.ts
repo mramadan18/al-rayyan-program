@@ -176,11 +176,28 @@ export const createZikrWidget = async () => {
  * Starts or restarts the interval scheduler for Zikr.
  */
 const startZikrScheduler = () => {
+  const isEnabled = store.get("azkar-widget-enabled", true) as boolean;
+  if (!isEnabled) return;
+
   const intervalMinutes = store.get("zikr-interval", 15) as number;
   const intervalMS = intervalMinutes * 60 * 1000;
 
   if (zikrInterval) clearInterval(zikrInterval);
-  zikrInterval = setInterval(createZikrWidget, intervalMS);
+  zikrInterval = setInterval(() => {
+    const stillEnabled = store.get("azkar-widget-enabled", true) as boolean;
+    if (stillEnabled) createZikrWidget();
+  }, intervalMS);
+};
+
+/**
+ * Stops the Zikr scheduler and closes any open widget.
+ */
+const stopZikrScheduler = () => {
+  if (zikrInterval) {
+    clearInterval(zikrInterval);
+    zikrInterval = null;
+  }
+  closeZikrWidget();
 };
 
 /**
@@ -193,6 +210,10 @@ export const initZikrWidgetListeners = () => {
   // Listen for settings changes to restart scheduler
   ipcMain.on("update-zikr-settings", () => startZikrScheduler());
 
-  // Initial start
+  // Enable / disable azkar widget from settings
+  ipcMain.on(IpcChannels.ENABLE_AZKAR_WIDGET, () => startZikrScheduler());
+  ipcMain.on(IpcChannels.DISABLE_AZKAR_WIDGET, () => stopZikrScheduler());
+
+  // Initial start (only if enabled)
   startZikrScheduler();
 };

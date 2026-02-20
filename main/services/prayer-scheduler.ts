@@ -1,10 +1,16 @@
 import { ipcMain, BrowserWindow } from "electron";
 import { showAdhanWidget } from "./widget-manager";
 import { IpcChannels } from "../shared/constants";
+import Store from "electron-store";
+
+const store = new Store();
 
 // Timings stored as "HH:mm" string
 let prayerTimes: Record<string, string> = {};
 let selectedAdhanPath = "/audio/adhan/adhan-1.mp3";
+let prayerNotificationsEnabled = true;
+let showPreAdhanEnabled = true;
+let preAdhanMinutesVal = 15;
 let mainWindow: BrowserWindow | null = null;
 let checkInterval: NodeJS.Timeout | null = null;
 let lastProcessedMinute = -1;
@@ -17,6 +23,18 @@ const toMinutes = (time: string) => {
 export const initPrayerScheduler = (win: BrowserWindow) => {
   mainWindow = win;
 
+  // Initialize from store
+  prayerNotificationsEnabled = store.get(
+    "prayer-notifications-enabled",
+    true,
+  ) as boolean;
+  showPreAdhanEnabled = store.get("show-pre-adhan", true) as boolean;
+  preAdhanMinutesVal = store.get("pre-adhan-minutes", 15) as number;
+  selectedAdhanPath = store.get(
+    "selected-adhan",
+    "/audio/adhan/adhan-1.mp3",
+  ) as string;
+
   // Listen for updates from Renderer keying on "update-prayer-times"
   ipcMain.on("update-prayer-times", (event, data) => {
     // data structure: { timings: { Fajr: "...", ... }, adhan: "path" }
@@ -26,6 +44,15 @@ export const initPrayerScheduler = (win: BrowserWindow) => {
     }
     if (data.adhan) {
       selectedAdhanPath = data.adhan;
+    }
+    if (data.prayerNotifications !== undefined) {
+      prayerNotificationsEnabled = data.prayerNotifications;
+    }
+    if (data.showPreAdhan !== undefined) {
+      showPreAdhanEnabled = data.showPreAdhan;
+    }
+    if (data.preAdhanMinutes !== undefined) {
+      preAdhanMinutesVal = data.preAdhanMinutes;
     }
   });
 
@@ -59,7 +86,8 @@ const startScheduler = () => {
 };
 
 const checkPrayers = () => {
-  if (!mainWindow || mainWindow.isDestroyed()) return;
+  if (!mainWindow || mainWindow.isDestroyed() || !prayerNotificationsEnabled)
+    return;
 
   const now = new Date();
   const currentMinutes = now.getHours() * 60 + now.getMinutes();
@@ -81,9 +109,9 @@ const checkPrayers = () => {
       // It is NOW prayer time
       console.log(`Triggering Adhan for ${name}`);
       showAdhanWidget(name, selectedAdhanPath);
-    } else if (diff === 15) {
-      // 15 minutes before
-      console.log(`Triggering Pre-Adhan for ${name}`);
+    } else if (showPreAdhanEnabled && diff === preAdhanMinutesVal) {
+      // User-defined minutes before
+      console.log(`Triggering Pre-Adhan for ${name} (${diff} mins before)`);
 
       const targetTime = new Date();
       const [hours, mins] = time.split(":").map(Number);

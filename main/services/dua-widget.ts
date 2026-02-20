@@ -76,6 +76,9 @@ export const createDuaWidget = async (volume: number = 1) => {
   closeDuaWidget();
 
   const { targetX, targetY, startX } = getWidgetPosition();
+  const isEnabled = store.get("dua-widget-enabled", true) as boolean;
+  if (!isEnabled) return;
+
   const isSilent = store.get("dua-silent", false) as boolean;
 
   duaWidgetWindow = new BrowserWindow({

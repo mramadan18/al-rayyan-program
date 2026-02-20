@@ -25,6 +25,11 @@ interface SettingsContextType {
   zikrPosition: string;
   duaSilent: boolean;
   duaPosition: string;
+  showAzkarWidget: boolean;
+  prayerNotifications: boolean;
+  showPreAdhan: boolean;
+  preAdhanMinutes: number;
+  showDuaWidget: boolean;
   loading: boolean;
   updateLocationSettings: (settings: LocationSettings) => Promise<void>;
   updateStartAtLogin: (enabled: boolean) => Promise<void>;
@@ -38,6 +43,11 @@ interface SettingsContextType {
   updateZikrPosition: (position: string) => Promise<void>;
   updateDuaSilent: (silent: boolean) => Promise<void>;
   updateDuaPosition: (position: string) => Promise<void>;
+  updateShowAzkarWidget: (enabled: boolean) => Promise<void>;
+  updatePrayerNotifications: (enabled: boolean) => Promise<void>;
+  updateShowPreAdhan: (enabled: boolean) => Promise<void>;
+  updatePreAdhanMinutes: (minutes: number) => Promise<void>;
+  updateShowDuaWidget: (enabled: boolean) => Promise<void>;
 }
 
 const SettingsContext = createContext<SettingsContextType | null>(null);
@@ -56,14 +66,19 @@ export const SettingsProvider = ({
   const [selectedAdhan, setSelectedAdhan] = useState(
     "/audio/adhan/adhan-1.mp3",
   );
-  const [miniWidgetAlwaysOnTop, setMiniWidgetAlwaysOnTop] = useState(true);
+  const [miniWidgetAlwaysOnTop, setMiniWidgetAlwaysOnTop] = useState(false);
   const [miniWidgetSize, setMiniWidgetSize] = useState(1);
   const [zikrInterval, setZikrInterval] = useState(15);
   const [zikrDuration, setZikrDuration] = useState(30);
-  const [zikrSilent, setZikrSilent] = useState(false);
+  const [zikrSilent, setZikrSilent] = useState(true);
   const [zikrPosition, setZikrPosition] = useState("bottom-right");
-  const [duaSilent, setDuaSilent] = useState(false);
+  const [duaSilent, setDuaSilent] = useState(true);
   const [duaPosition, setDuaPosition] = useState("bottom-right");
+  const [showAzkarWidget, setShowAzkarWidget] = useState(true);
+  const [prayerNotifications, setPrayerNotifications] = useState(true);
+  const [showPreAdhan, setShowPreAdhan] = useState(true);
+  const [preAdhanMinutes, setPreAdhanMinutes] = useState(15);
+  const [showDuaWidget, setShowDuaWidget] = useState(true);
   const [loading, setLoading] = useState(true);
 
   const loadSettings = useCallback(async () => {
@@ -86,6 +101,11 @@ export const SettingsProvider = ({
         savedZikrPosition,
         savedDuaSilent,
         savedDuaPosition,
+        savedAzkarEnabled,
+        savedPrayerNotifications,
+        savedShowPreAdhan,
+        savedPreAdhanMinutes,
+        savedShowDua,
       ] = await Promise.all([
         window.ipc.invoke("store-get", "location-settings"),
         window.ipc.invoke("store-get", "start-at-login"),
@@ -99,6 +119,11 @@ export const SettingsProvider = ({
         window.ipc.invoke("store-get", "zikr-position"),
         window.ipc.invoke("store-get", "dua-silent"),
         window.ipc.invoke("store-get", "dua-position"),
+        window.ipc.invoke("store-get", "azkar-widget-enabled"),
+        window.ipc.invoke("store-get", "prayer-notifications-enabled"),
+        window.ipc.invoke("store-get", "show-pre-adhan"),
+        window.ipc.invoke("store-get", "pre-adhan-minutes"),
+        window.ipc.invoke("store-get", "dua-widget-enabled"),
       ]);
 
       if (savedLoc) setLocationSettings(savedLoc as LocationSettings);
@@ -114,7 +139,7 @@ export const SettingsProvider = ({
       else window.ipc.invoke("store-set", "selected-adhan", selectedAdhan);
 
       if (savedPin !== undefined) setMiniWidgetAlwaysOnTop(!!savedPin);
-      else window.ipc.invoke("store-set", "mini-widget-always-on-top", true);
+      else window.ipc.invoke("store-set", "mini-widget-always-on-top", false);
 
       if (savedSize !== undefined) setMiniWidgetSize(Number(savedSize));
       else window.ipc.invoke("store-set", "mini-widget-size", 1);
@@ -128,18 +153,36 @@ export const SettingsProvider = ({
       else window.ipc.invoke("store-set", "zikr-duration", 30);
 
       if (savedZikrSilent !== undefined) setZikrSilent(!!savedZikrSilent);
-      else window.ipc.invoke("store-set", "zikr-silent", false);
+      else window.ipc.invoke("store-set", "zikr-silent", true);
 
       if (savedZikrPosition !== undefined)
         setZikrPosition(String(savedZikrPosition));
       else window.ipc.invoke("store-set", "zikr-position", "bottom-right");
 
       if (savedDuaSilent !== undefined) setDuaSilent(!!savedDuaSilent);
-      else window.ipc.invoke("store-set", "dua-silent", false);
+      else window.ipc.invoke("store-set", "dua-silent", true);
 
       if (savedDuaPosition !== undefined)
         setDuaPosition(String(savedDuaPosition));
       else window.ipc.invoke("store-set", "dua-position", "bottom-right");
+
+      if (savedAzkarEnabled !== undefined)
+        setShowAzkarWidget(!!savedAzkarEnabled);
+      else window.ipc.invoke("store-set", "azkar-widget-enabled", true);
+
+      if (savedPrayerNotifications !== undefined)
+        setPrayerNotifications(!!savedPrayerNotifications);
+      else window.ipc.invoke("store-set", "prayer-notifications-enabled", true);
+
+      if (savedShowPreAdhan !== undefined) setShowPreAdhan(!!savedShowPreAdhan);
+      else window.ipc.invoke("store-set", "show-pre-adhan", true);
+
+      if (savedPreAdhanMinutes !== undefined)
+        setPreAdhanMinutes(Number(savedPreAdhanMinutes));
+      else window.ipc.invoke("store-set", "pre-adhan-minutes", 15);
+
+      if (savedShowDua !== undefined) setShowDuaWidget(!!savedShowDua);
+      else window.ipc.invoke("store-set", "dua-widget-enabled", true);
     } catch (err) {
       console.error("Failed to load settings:", err);
     } finally {
@@ -244,6 +287,50 @@ export const SettingsProvider = ({
     }
   };
 
+  const updateShowAzkarWidget = async (enabled: boolean) => {
+    setShowAzkarWidget(enabled);
+    if (window.ipc) {
+      await window.ipc.invoke("store-set", "azkar-widget-enabled", enabled);
+      if (enabled) window.ipc.send("enable-azkar-widget");
+      else window.ipc.send("disable-azkar-widget");
+    }
+  };
+
+  const updatePrayerNotifications = async (enabled: boolean) => {
+    setPrayerNotifications(enabled);
+    if (window.ipc) {
+      await window.ipc.invoke(
+        "store-set",
+        "prayer-notifications-enabled",
+        enabled,
+      );
+      window.ipc.send("update-prayer-times", { prayerNotifications: enabled });
+    }
+  };
+
+  const updateShowPreAdhan = async (enabled: boolean) => {
+    setShowPreAdhan(enabled);
+    if (window.ipc) {
+      await window.ipc.invoke("store-set", "show-pre-adhan", enabled);
+      window.ipc.send("update-prayer-times", { showPreAdhan: enabled });
+    }
+  };
+
+  const updatePreAdhanMinutes = async (minutes: number) => {
+    setPreAdhanMinutes(minutes);
+    if (window.ipc) {
+      await window.ipc.invoke("store-set", "pre-adhan-minutes", minutes);
+      window.ipc.send("update-prayer-times", { preAdhanMinutes: minutes });
+    }
+  };
+
+  const updateShowDuaWidget = async (enabled: boolean) => {
+    setShowDuaWidget(enabled);
+    if (window.ipc) {
+      await window.ipc.invoke("store-set", "dua-widget-enabled", enabled);
+    }
+  };
+
   return (
     <SettingsContext.Provider
       value={{
@@ -259,6 +346,11 @@ export const SettingsProvider = ({
         zikrPosition,
         duaSilent,
         duaPosition,
+        showAzkarWidget,
+        prayerNotifications,
+        showPreAdhan,
+        preAdhanMinutes,
+        showDuaWidget,
         loading,
         updateLocationSettings,
         updateStartAtLogin,
@@ -272,6 +364,11 @@ export const SettingsProvider = ({
         updateZikrPosition,
         updateDuaSilent,
         updateDuaPosition,
+        updateShowAzkarWidget,
+        updatePrayerNotifications,
+        updateShowPreAdhan,
+        updatePreAdhanMinutes,
+        updateShowDuaWidget,
       }}
     >
       {children}

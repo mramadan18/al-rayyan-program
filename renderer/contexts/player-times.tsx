@@ -1,4 +1,4 @@
-import React, {
+import {
   createContext,
   useContext,
   useEffect,
@@ -6,7 +6,6 @@ import React, {
   useCallback,
 } from "react";
 import axios from "axios";
-import { IpcChannels } from "shared/constants";
 import { useSettings } from "./settings-context";
 
 // --- Types & Interfaces ---

@@ -1,8 +1,9 @@
 import { PageLayout } from "@/components/layout/PageLayout";
 import { LocationSettings } from "@/components/settings/LocationSettings";
 import { AdhanSettings } from "@/components/settings/AdhanSettings";
-import { ZikrSettings } from "@/components/settings/ZikrSettings";
+import { PreAdhanSettings } from "@/components/settings/PreAdhanSettings";
 import { DuaSettings } from "@/components/settings/DuaSettings";
+import { ZikrSettings } from "@/components/settings/ZikrSettings";
 import { AppearanceSettings } from "@/components/settings/AppearanceSettings";
 import { SystemSettings } from "@/components/settings/SystemSettings";
 import { DeveloperSettings } from "@/components/settings/DeveloperSettings";
@@ -13,8 +14,9 @@ export default function SettingsPage() {
       <div className="grid gap-6 pb-12">
         <LocationSettings />
         <AdhanSettings />
-        <ZikrSettings />
+        <PreAdhanSettings />
         <DuaSettings />
+        <ZikrSettings />
         <AppearanceSettings />
         <SystemSettings />
         <DeveloperSettings />

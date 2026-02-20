@@ -18,10 +18,12 @@ export function ZikrSettings() {
     zikrDuration,
     zikrSilent,
     zikrPosition,
+    showAzkarWidget,
     updateZikrInterval,
     updateZikrDuration,
     updateZikrSilent,
     updateZikrPosition,
+    updateShowAzkarWidget,
   } = useSettings();
 
   return (
@@ -31,6 +33,22 @@ export function ZikrSettings() {
       icon={Quote}
     >
       <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <div className="space-y-0.5">
+            <Label htmlFor="azkar-widget-enabled">تفعيل نافذة الأذكار</Label>
+            <p className="text-xs text-muted-foreground">
+              إظهار نافذة الأذكار المنبثقة تلقائياً
+            </p>
+          </div>
+          <Switch
+            id="azkar-widget-enabled"
+            checked={showAzkarWidget}
+            onCheckedChange={updateShowAzkarWidget}
+          />
+        </div>
+
+        <Separator />
+
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label>تكرار الظهور</Label>

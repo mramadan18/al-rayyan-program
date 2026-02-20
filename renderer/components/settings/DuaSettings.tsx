@@ -13,8 +13,14 @@ import {
 import { useSettings } from "@/contexts/settings-context";
 
 export function DuaSettings() {
-  const { duaSilent, duaPosition, updateDuaSilent, updateDuaPosition } =
-    useSettings();
+  const {
+    duaSilent,
+    duaPosition,
+    showDuaWidget,
+    updateDuaSilent,
+    updateDuaPosition,
+    updateShowDuaWidget,
+  } = useSettings();
 
   return (
     <SettingsSection
@@ -23,10 +29,30 @@ export function DuaSettings() {
       icon={BookOpen}
     >
       <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <div className="space-y-0.5">
+            <Label htmlFor="dua-widget-enabled">تفعيل نافذة الدعاء</Label>
+            <p className="text-xs text-muted-foreground">
+              إظهار نافذة الدعاء المنبثقة بعد الأذان
+            </p>
+          </div>
+          <Switch
+            id="dua-widget-enabled"
+            checked={showDuaWidget}
+            onCheckedChange={updateShowDuaWidget}
+          />
+        </div>
+
+        <Separator />
+
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label>موقع النافذة</Label>
-            <Select value={duaPosition} onValueChange={updateDuaPosition}>
+            <Select
+              disabled={!showDuaWidget}
+              value={duaPosition}
+              onValueChange={updateDuaPosition}
+            >
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="اختر الموقع" />
               </SelectTrigger>
@@ -52,6 +78,7 @@ export function DuaSettings() {
           </div>
           <Switch
             id="dua-silent"
+            disabled={!showDuaWidget}
             checked={duaSilent}
             onCheckedChange={updateDuaSilent}
           />

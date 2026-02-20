@@ -19,6 +19,8 @@ export const IpcChannels = {
   SYNC_RADIO_STATE: "sync-radio-state",
   OPEN_ZIKR_WIDGET: "open-zikr-widget",
   CLOSE_ZIKR_WIDGET: "close-zikr-widget",
+  ENABLE_AZKAR_WIDGET: "enable-azkar-widget",
+  DISABLE_AZKAR_WIDGET: "disable-azkar-widget",
 } as const;
 
 export type IpcChannelType = (typeof IpcChannels)[keyof typeof IpcChannels];
