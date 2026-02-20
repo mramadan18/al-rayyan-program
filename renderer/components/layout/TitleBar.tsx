@@ -75,7 +75,7 @@ export function TitleBar() {
                     ? "التحديث جاهز للتثبيت"
                     : "جاري التحقق..."
             }
-            side="bottom"
+            side="right"
           >
             <button
               onClick={() => checkForUpdate()}
