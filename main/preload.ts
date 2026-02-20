@@ -1,4 +1,9 @@
-import { contextBridge, ipcRenderer, IpcRendererEvent } from "electron";
+import {
+  contextBridge,
+  ipcRenderer,
+  IpcRendererEvent,
+  webFrame,
+} from "electron";
 
 const handler = {
   send(channel: string, value?: unknown) {
@@ -15,6 +20,9 @@ const handler = {
     return () => {
       ipcRenderer.removeListener(channel, subscription);
     };
+  },
+  setZoom(factor: number) {
+    webFrame.setZoomFactor(factor);
   },
 };
 

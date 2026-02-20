@@ -1,4 +1,4 @@
-import { Pin, PinOff, X } from "lucide-react";
+import { Pin, PinOff, X, MoreHorizontal } from "lucide-react";
 import { useState, useEffect } from "react";
 import { usePrayerTimes } from "@/contexts/player-times";
 import { cn } from "@/lib/utils";
@@ -11,6 +11,7 @@ export function MiniWidget() {
     miniWidgetAlwaysOnTop,
     updateMiniWidgetAlwaysOnTop,
     miniWidgetSize,
+    updateMiniWidgetSize,
     loading: settingsLoading,
   } = useSettings();
   /* Removed clock state */
@@ -18,6 +19,21 @@ export function MiniWidget() {
 
   useEffect(() => {
     setMounted(true);
+    // Apply initial zoom
+    if (window.ipc && miniWidgetSize) {
+      window.ipc.setZoom(miniWidgetSize);
+    }
+  }, [miniWidgetSize]);
+
+  useEffect(() => {
+    if (!window.ipc) return;
+
+    // Listen for zoom updates from main process
+    const cleanup = window.ipc.on("apply-mini-widget-zoom", (size: number) => {
+      window.ipc.setZoom(size);
+    });
+
+    return cleanup;
   }, []);
 
   const handleTogglePin = async (e: React.MouseEvent) => {
@@ -37,6 +53,18 @@ export function MiniWidget() {
     }
   };
 
+  const handleZoomIn = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const newSize = Math.min(miniWidgetSize + 0.1, 1.5);
+    updateMiniWidgetSize(Number(newSize.toFixed(1)));
+  };
+
+  const handleZoomOut = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const newSize = Math.max(miniWidgetSize - 0.1, 0.7);
+    updateMiniWidgetSize(Number(newSize.toFixed(1)));
+  };
+
   return (
     <div className="group relative overflow-hidden rounded-3xl border border-white/10 bg-slate-950/80 backdrop-blur-xl shadow-[0_8px_32px_0_rgba(0,0,0,0.8)] text-white select-none transition-all duration-300 w-[300px] h-[150px]">
       {/* Container for Drag and Controls */}
@@ -49,21 +77,37 @@ export function MiniWidget() {
 
         {/* Top Bar Controls */}
         <div className="relative flex items-center justify-between px-4 pt-3 h-8 opacity-40 group-hover:opacity-100 transition-opacity duration-300">
-          <button
-            onClick={handleTogglePin}
-            className={cn(
-              "p-1.5 rounded-full transition-colors hover:bg-white/20 active:scale-95 pointer-events-auto z-50",
-              miniWidgetAlwaysOnTop ? "text-amber-400" : "text-white/40",
-            )}
-            title={miniWidgetAlwaysOnTop ? "إلغاء التثبيت" : "تثبيت في المقدمة"}
-            style={{ WebkitAppRegion: "no-drag" } as any}
-          >
-            {miniWidgetAlwaysOnTop ? (
-              <Pin className="w-4 h-4 pointer-events-none" />
-            ) : (
-              <PinOff className="w-4 h-4 pointer-events-none" />
-            )}
-          </button>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={handleTogglePin}
+              className={cn(
+                "p-1.5 rounded-full transition-colors hover:bg-white/20 active:scale-95 pointer-events-auto z-50",
+                miniWidgetAlwaysOnTop ? "text-amber-400" : "text-white/40",
+              )}
+              title={
+                miniWidgetAlwaysOnTop ? "إلغاء التثبيت" : "تثبيت في المقدمة"
+              }
+              style={{ WebkitAppRegion: "no-drag" } as any}
+            >
+              {miniWidgetAlwaysOnTop ? (
+                <Pin className="w-4 h-4 pointer-events-none" />
+              ) : (
+                <PinOff className="w-4 h-4 pointer-events-none" />
+              )}
+            </button>
+
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                window.ipc?.send(IpcChannels.SHOW_MINI_WIDGET_MENU);
+              }}
+              className="p-1.5 rounded-full transition-colors hover:bg-white/20 text-white/40 hover:text-white active:scale-95 pointer-events-auto z-50"
+              title="خيارات إضافية"
+              style={{ WebkitAppRegion: "no-drag" } as any}
+            >
+              <MoreHorizontal className="w-4 h-4 pointer-events-none" />
+            </button>
+          </div>
 
           <button
             onClick={handleClose}
@@ -77,9 +121,6 @@ export function MiniWidget() {
 
       {/* Content */}
       <div className="relative z-10 text-center flex flex-col items-center justify-center h-full">
-        {/* Clock */}
-        {/* Clock Removed */}
-
         {/* Prayer Info */}
         {prayerLoading || settingsLoading || !mounted ? (
           <div className="h-20 flex items-center justify-center">

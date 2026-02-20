@@ -21,6 +21,7 @@ export const IpcChannels = {
   CLOSE_ZIKR_WIDGET: "close-zikr-widget",
   ENABLE_AZKAR_WIDGET: "enable-azkar-widget",
   DISABLE_AZKAR_WIDGET: "disable-azkar-widget",
+  SHOW_MINI_WIDGET_MENU: "show-mini-widget-menu",
 } as const;
 
 export type IpcChannelType = (typeof IpcChannels)[keyof typeof IpcChannels];

@@ -1,4 +1,4 @@
-import { BrowserWindow, screen, ipcMain } from "electron";
+import { BrowserWindow, screen, ipcMain, Menu } from "electron";
 import path from "path";
 import Store from "electron-store";
 import { IpcChannels } from "../shared/constants";
@@ -62,7 +62,11 @@ export const openMiniWidget = async () => {
   await miniWidgetWindow.loadURL(url);
 
   // Set initial zoom factor
-  miniWidgetWindow.webContents.setZoomFactor(savedSize);
+  miniWidgetWindow.webContents.on("did-finish-load", () => {
+    if (miniWidgetWindow && !miniWidgetWindow.isDestroyed()) {
+      miniWidgetWindow.webContents.send("apply-mini-widget-zoom", savedSize);
+    }
+  });
 
   // Save position on move and clamp to screen
   miniWidgetWindow.on("moved", () => {
@@ -149,11 +153,90 @@ export const initMiniWidgetListeners = () => {
       });
 
       // Apply zoom factor
-      miniWidgetWindow.webContents.setZoomFactor(scale);
+      miniWidgetWindow.webContents.send("apply-mini-widget-zoom", scale);
     }
   });
 
   ipcMain.handle(IpcChannels.TOGGLE_ALWAYS_ON_TOP, () => {
     return toggleAlwaysOnTop();
+  });
+
+  ipcMain.on(IpcChannels.SHOW_MINI_WIDGET_MENU, () => {
+    if (!miniWidgetWindow || miniWidgetWindow.isDestroyed()) return;
+
+    const currentSize = store.get("mini-widget-size", 1) as number;
+
+    const menu = Menu.buildFromTemplate([
+      {
+        label: "تكبير (Zoom In)",
+        click: () => {
+          const newSize = Math.min(currentSize + 0.1, 1.5);
+          store.set("mini-widget-size", newSize);
+
+          // Send update back to main listener logic
+          const baseWidth = 300;
+          const baseHeight = 150;
+          const newWidth = Math.round(baseWidth * newSize);
+          const newHeight = Math.round(baseHeight * newSize);
+
+          const bounds = miniWidgetWindow!.getBounds();
+          miniWidgetWindow!.setBounds({
+            x: bounds.x,
+            y: bounds.y,
+            width: newWidth,
+            height: newHeight,
+          });
+
+          miniWidgetWindow!.webContents.send("apply-mini-widget-zoom", newSize);
+        },
+      },
+      {
+        label: "تصغير (Zoom Out)",
+        click: () => {
+          const newSize = Math.max(currentSize - 0.1, 0.7);
+          store.set("mini-widget-size", newSize);
+
+          const baseWidth = 300;
+          const baseHeight = 150;
+          const newWidth = Math.round(baseWidth * newSize);
+          const newHeight = Math.round(baseHeight * newSize);
+
+          const bounds = miniWidgetWindow!.getBounds();
+          miniWidgetWindow!.setBounds({
+            x: bounds.x,
+            y: bounds.y,
+            width: newWidth,
+            height: newHeight,
+          });
+
+          miniWidgetWindow!.webContents.send("apply-mini-widget-zoom", newSize);
+        },
+      },
+      { type: "separator" },
+      {
+        label: "إعادة تعيين (Reset)",
+        click: () => {
+          const newSize = 1.0;
+          store.set("mini-widget-size", newSize);
+
+          const baseWidth = 300;
+          const baseHeight = 150;
+          const newWidth = 300;
+          const newHeight = 150;
+
+          const bounds = miniWidgetWindow!.getBounds();
+          miniWidgetWindow!.setBounds({
+            x: bounds.x,
+            y: bounds.y,
+            width: newWidth,
+            height: newHeight,
+          });
+
+          miniWidgetWindow!.webContents.send("apply-mini-widget-zoom", newSize);
+        },
+      },
+    ]);
+
+    menu.popup({ window: miniWidgetWindow });
   });
 };
