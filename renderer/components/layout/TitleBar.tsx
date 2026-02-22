@@ -58,66 +58,6 @@ export function TitleBar() {
           <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
         </div>
       </div>
-
-      {/* Right side - Update & Status utility */}
-      <div className="flex items-center h-full no-drag px-1">
-        {(status === "available" ||
-          status === "checking" ||
-          status === "downloading" ||
-          status === "downloaded") && (
-          <Tooltip
-            content={
-              status === "available"
-                ? "تحديث جديد متاح!"
-                : status === "downloading"
-                  ? "جاري التحميل..."
-                  : status === "downloaded"
-                    ? "التحديث جاهز للتثبيت"
-                    : "جاري التحقق..."
-            }
-            side="right"
-          >
-            <button
-              onClick={() => checkForUpdate()}
-              className={cn(
-                "h-7 px-2.5 flex items-center gap-1.5 rounded-md transition-all duration-300",
-                status === "available"
-                  ? "bg-primary/15 text-primary hover:bg-primary/25 animate-pulse"
-                  : status === "downloaded"
-                    ? "bg-emerald-500/15 text-emerald-500 hover:bg-emerald-500/25"
-                    : "text-muted-foreground hover:bg-foreground/5",
-              )}
-            >
-              {status === "checking" ? (
-                <RefreshCw size={13} className="animate-spin" />
-              ) : status === "available" ? (
-                <>
-                  <Sparkles size={13} className="animate-bounce" />
-                  <span className="text-[10px] font-bold">تحديث!</span>
-                </>
-              ) : status === "downloading" ? (
-                <Download size={13} className="animate-bounce" />
-              ) : status === "downloaded" ? (
-                <RefreshCw size={13} />
-              ) : null}
-            </button>
-          </Tooltip>
-        )}
-
-        {/* Regular Update Button (Subtle when no update) */}
-        {status === "idle" ||
-        status === "not-available" ||
-        status === "error" ? (
-          <Tooltip content="التحقق من التحديثات" side="right">
-            <button
-              onClick={() => checkForUpdate()}
-              className="h-7 w-7 flex items-center justify-center rounded-md text-muted-foreground/40 hover:text-primary hover:bg-primary/10 transition-all duration-300"
-            >
-              <RefreshCw size={13} />
-            </button>
-          </Tooltip>
-        ) : null}
-      </div>
     </div>
   );
 }

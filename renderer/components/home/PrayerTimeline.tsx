@@ -10,6 +10,7 @@ export interface PrayerTime {
 
 interface PrayerTimelineProps {
   prayers: PrayerTime[];
+  loading?: boolean;
 }
 
 const getPrayerIcon = (name: string, idx: number) => {
@@ -40,7 +41,39 @@ const getPrayerIcon = (name: string, idx: number) => {
   return Moon;
 };
 
-export function PrayerTimeline({ prayers }: PrayerTimelineProps) {
+export function PrayerTimeline({
+  prayers,
+  loading = false,
+}: PrayerTimelineProps) {
+  if (loading || !prayers || prayers.length === 0) {
+    return (
+      <Card className="border-none shadow-lg bg-linear-to-br from-card/80 to-background/50 backdrop-blur-md overflow-hidden animate-pulse">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-xl font-bold flex items-center gap-2">
+            <div className="w-1.5 h-6 bg-primary/30 rounded-full" />
+            <div className="h-6 w-32 bg-primary/30 rounded" />
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="p-6 pt-8">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-8 md:gap-4">
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <div
+                key={i}
+                className="flex md:flex-col items-center gap-4 md:gap-3 w-full md:w-auto"
+              >
+                <div className="w-14 h-14 rounded-full bg-primary/20 border-4 border-transparent" />
+                <div className="flex flex-col md:items-center gap-2">
+                  <div className="h-4 w-16 bg-primary/20 rounded" />
+                  <div className="h-3 w-12 bg-primary/20 rounded" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   // Calculate progress for the timeline bar
   const activeIndex = prayers.findIndex((p) => p.status === "active");
   const progress =

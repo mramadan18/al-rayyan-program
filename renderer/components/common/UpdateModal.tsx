@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import { Download, RefreshCw, Sparkles, AlertCircle, X } from "lucide-react";
 import { useAutoUpdater, type UpdateStatus } from "@/hooks/useAutoUpdater";
 import {

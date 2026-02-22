@@ -128,6 +128,34 @@ export const PlayerTimesProvider = ({
         setLoading(true);
         setError(null);
 
+        // --- Caching Logic ---
+        const today = new Date().toISOString().split("T")[0];
+
+        // Only use cache if it's NOT a manual location update
+        if (!manualLocation && window.ipc) {
+          const cached = await window.ipc.invoke(
+            "store-get",
+            "prayer-times-cache",
+          );
+          if (cached && cached.date === today && cached.data) {
+            // Validate that the cached data matches the current location settings
+            const sameLocation =
+              cached.data.metadata.city === locationSettings.city &&
+              cached.data.metadata.country === locationSettings.country;
+
+            // If location is the same, or if we don't have location set yet (meaning we'll use IP), use cache
+            if (
+              sameLocation ||
+              (!locationSettings.city && !locationSettings.country)
+            ) {
+              console.log("Using cached prayer times for today:", today);
+              setData(cached.data);
+              setLoading(false);
+              return;
+            }
+          }
+        }
+
         let lat: number | undefined = manualLocation?.lat;
         let lon: number | undefined = manualLocation?.lon;
 
@@ -174,7 +202,16 @@ export const PlayerTimesProvider = ({
         console.log("Fetching prayer times from:", fullUrl);
 
         const response = await axios.get(fullUrl);
-        setData(response.data);
+        const newData = response.data;
+        setData(newData);
+
+        // Save to cache
+        if (window.ipc) {
+          await window.ipc.invoke("store-set", "prayer-times-cache", {
+            date: today,
+            data: newData,
+          });
+        }
 
         // If we got data and it was a manual selection, save it
         if (manualLocation) {
@@ -197,6 +234,37 @@ export const PlayerTimesProvider = ({
     },
     [locationSettings, updateLocationSettings],
   );
+
+  // Midnight Refresh Logic
+  useEffect(() => {
+    const calculateTimeToMidnight = () => {
+      const now = new Date();
+      const midnight = new Date(now);
+      midnight.setHours(24, 0, 0, 0); // Next midnight
+      return midnight.getTime() - now.getTime();
+    };
+
+    let timeoutId: NodeJS.Timeout;
+
+    const scheduleRefresh = () => {
+      const timeToMidnight = calculateTimeToMidnight();
+      console.log(
+        `Scheduling prayer times refresh in ${Math.round(timeToMidnight / 1000 / 60)} minutes (at midnight)`,
+      );
+
+      timeoutId = setTimeout(() => {
+        console.log("Midnight reached! Refreshing prayer times...");
+        fetchData();
+        scheduleRefresh(); // Schedule for next midnight
+      }, timeToMidnight);
+    };
+
+    scheduleRefresh();
+
+    return () => {
+      if (timeoutId) clearTimeout(timeoutId);
+    };
+  }, [fetchData]);
 
   useEffect(() => {
     fetchData();

@@ -33,11 +33,11 @@ export function Sidebar() {
     <aside className="fixed top-8 right-0 bottom-0 w-20 bg-sidebar border-l border-sidebar-border flex flex-col items-center py-6 z-40 bg-card/60 backdrop-blur-md shadow-2xl">
       {/* Logo Area */}
       <div className="mb-10 text-center select-none cursor-default">
-        <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center border border-primary/20 shadow-inner group transition-all duration-500 hover:rotate-12">
-          <span className="text-2xl font-bold text-primary font-quran drop-shadow-sm group-hover:scale-110 transition-transform">
-            ر
-          </span>
-        </div>
+        <img
+          src="/images/logo.png"
+          alt="Logo"
+          className="w-14 h-14 object-contain drop-shadow-sm rounded-2xl"
+        />
       </div>
 
       {/* Navigation Items */}

@@ -7,6 +7,7 @@ import { ZakatHeader } from "./zakat/ZakatHeader";
 import { ZakatMaalForm } from "./zakat/ZakatMaalForm";
 import { ZakatFitrForm } from "./zakat/ZakatFitrForm";
 import { ZakatFooter } from "./zakat/ZakatFooter";
+import { NetworkErrorBanner } from "@/components/common/NetworkErrorBanner";
 
 export function ZakatCalculator() {
   const [isMounted, setIsMounted] = useState(false);
@@ -21,6 +22,7 @@ export function ZakatCalculator() {
     setActiveTab,
     totalZakat,
     isLoadingGold,
+    hasError,
     goldPrice,
     loadGoldPrice,
     currency,
@@ -46,7 +48,12 @@ export function ZakatCalculator() {
   };
 
   return (
-    <div className="w-full mx-auto p-4 animate-in fade-in duration-500">
+    <div className="w-full mx-auto p-4 animate-in fade-in duration-500 space-y-4">
+      <NetworkErrorBanner
+        hasApiError={hasError}
+        onAction={loadGoldPrice}
+        description="فشل جلب أسعار الذهب الحالية. سيتم استخدام أسعار تقريبية (أوفلاين) لحساب النصاب."
+      />
       <Card className="bg-card border-border shadow-2xl overflow-hidden">
         <ZakatHeader
           currency={currency}

@@ -12,6 +12,7 @@ export function useZakatCalculator() {
   const [activeTab, setActiveTab] = useState<TabValue>("fitr");
   const [totalZakat, setTotalZakat] = useState(0);
   const [isLoadingGold, setIsLoadingGold] = useState(false);
+  const [hasError, setHasError] = useState(false);
   const [goldPrice, setGoldPrice] = useState(FALLBACK_GOLD_PRICE);
   const [currency, setCurrency] = useState("ج.م");
 
@@ -28,6 +29,7 @@ export function useZakatCalculator() {
 
   const loadGoldPrice = async () => {
     setIsLoadingGold(true);
+    setHasError(false);
     try {
       const currencyMap: Record<string, string> = {
         "ج.م": "EGP",
@@ -40,6 +42,7 @@ export function useZakatCalculator() {
       setGoldPrice(price);
     } catch (error) {
       console.error("Failed to load gold price", error);
+      setHasError(true);
     } finally {
       setIsLoadingGold(false);
     }
@@ -82,6 +85,7 @@ export function useZakatCalculator() {
     setActiveTab,
     totalZakat,
     isLoadingGold,
+    hasError,
     goldPrice,
     loadGoldPrice,
     currency,

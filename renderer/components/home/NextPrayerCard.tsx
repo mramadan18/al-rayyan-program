@@ -13,6 +13,7 @@ interface NextPrayerCardProps {
   location: string;
   hijriDate: string;
   gregorianDate: string;
+  loading?: boolean;
 }
 
 export function NextPrayerCard({
@@ -21,7 +22,29 @@ export function NextPrayerCard({
   location,
   hijriDate,
   gregorianDate,
+  loading = false,
 }: NextPrayerCardProps) {
+  if (loading || !prayerName || prayerName === "...") {
+    return (
+      <Card className="relative overflow-hidden border-none shadow-xl bg-primary/20 text-primary-foreground h-full flex flex-col justify-between animate-pulse min-h-[300px]">
+        <CardHeader className="relative z-10 pb-2">
+          <div className="flex justify-between items-start">
+            <div className="h-6 w-24 bg-primary/30 rounded-full" />
+            <div className="h-6 w-32 bg-primary/30 rounded-full" />
+          </div>
+        </CardHeader>
+        <CardContent className="relative z-10 text-center py-8 flex flex-col items-center gap-4">
+          <div className="h-16 w-48 bg-primary/30 rounded-lg" />
+          <div className="h-10 w-36 bg-primary/30 rounded-lg" />
+        </CardContent>
+        <CardFooter className="relative z-10 bg-black/5 backdrop-blur-md py-3 flex justify-between">
+          <div className="h-4 w-32 bg-primary/30 rounded" />
+          <div className="h-4 w-32 bg-primary/30 rounded" />
+        </CardFooter>
+      </Card>
+    );
+  }
+
   return (
     <Card className="relative overflow-hidden border-none shadow-xl bg-primary text-primary-foreground h-full flex flex-col justify-between group">
       {/* Geometric Pattern Overlay */}

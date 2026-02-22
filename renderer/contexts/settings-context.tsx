@@ -1,9 +1,10 @@
-import React, {
+import {
   createContext,
   useContext,
   useEffect,
   useState,
   useCallback,
+  useMemo,
 } from "react";
 import { IpcChannels } from "shared/constants";
 
@@ -417,7 +418,7 @@ export const SettingsProvider = ({
     }
   }, []);
 
-  const value = React.useMemo(
+  const value = useMemo(
     () => ({
       locationSettings,
       startAtLogin,

@@ -3,8 +3,11 @@ import { RadioSearch } from "./radio/RadioSearch";
 import { RadioGrid } from "./radio/RadioGrid";
 import { RadioPlayerBar } from "./radio/RadioPlayerBar";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { NetworkErrorBanner } from "@/components/common/NetworkErrorBanner";
+import { useNetworkStatus } from "@/hooks/useNetworkStatus";
 
 export function RadioModule() {
+  const { isOnline } = useNetworkStatus();
   const {
     radios,
     currentRadio,
@@ -35,11 +38,19 @@ export function RadioModule() {
 
   return (
     <div className="flex flex-col h-[calc(100vh-140px)] w-full" dir="rtl">
+      <NetworkErrorBanner
+        description="يرجى الاتصال بالشبكة لتتمكن من الاستماع إلى البث المباشر لإذاعات القرآن الكريم."
+        showAction={false}
+        className="mb-6"
+      />
+
       {/* Featured Station (Cairo Quran FM) */}
       {cairoRadio && (
-        <div className="mb-6 animate-in slide-in-from-top duration-500">
+        <div
+          className={`mb-6 animate-in slide-in-from-top duration-500 ${!isOnline ? "opacity-50 grayscale pointer-events-none" : ""}`}
+        >
           <div
-            onClick={() => setCurrentRadio(cairoRadio)}
+            onClick={() => isOnline && setCurrentRadio(cairoRadio)}
             className={`
               relative overflow-hidden rounded-2xl border cursor-pointer transition-all duration-300 group
               ${
@@ -188,12 +199,16 @@ export function RadioModule() {
       </div>
 
       {/* Stations Grid */}
-      <RadioGrid
-        radios={gridRadios}
-        currentRadio={currentRadio}
-        isPlaying={isPlaying}
-        onSelect={setCurrentRadio}
-      />
+      <div
+        className={!isOnline ? "opacity-50 grayscale pointer-events-none" : ""}
+      >
+        <RadioGrid
+          radios={gridRadios}
+          currentRadio={currentRadio}
+          isPlaying={isPlaying}
+          onSelect={setCurrentRadio}
+        />
+      </div>
 
       {/* Sticky Player Bar */}
       {currentRadio && (
