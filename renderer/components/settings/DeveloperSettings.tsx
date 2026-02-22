@@ -31,6 +31,12 @@ export function DeveloperSettings() {
         >
           تجربة نافذة الذكر
         </Button>
+        {/* <Button
+          variant="outline"
+          onClick={() => window.ipc.send("test-iqamah")}
+        >
+          تجربة عداد الإقامة
+        </Button> */}
         <Button
           variant="outline"
           onClick={() => window.ipc.send(IpcChannels.WINDOW_CLOSE)}

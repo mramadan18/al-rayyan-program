@@ -68,6 +68,18 @@ export const initPrayerScheduler = (win: BrowserWindow) => {
     showAdhanWidget("Test Prayer", selectedAdhanPath);
   });
 
+  ipcMain.on(IpcChannels.STOP_AUDIO, () => {
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      mainWindow.webContents.send("stop-audio");
+    }
+  });
+
+  ipcMain.on(IpcChannels.MUTE_AUDIO, (event, muted: boolean) => {
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      mainWindow.webContents.send("mute-audio", muted);
+    }
+  });
+
   ipcMain.on("test-pre-adhan", () => {
     console.log("Received test-pre-adhan IPC in main process");
     // Show widget with 15 minutes remaining (simulated)
@@ -80,6 +92,13 @@ export const initPrayerScheduler = (win: BrowserWindow) => {
     if (mainWindow) {
       mainWindow.webContents.send("play-audio", "/audio/before-adhan.mp3");
     }
+  });
+
+  ipcMain.on("test-iqamah", () => {
+    const allWindows = BrowserWindow.getAllWindows();
+    allWindows.forEach((win) => {
+      win.webContents.send("test-iqamah");
+    });
   });
 
   startScheduler();
@@ -106,7 +125,7 @@ const checkPrayers = () => {
 
   // Iterate through prayers
   for (const [name, time] of Object.entries(prayerTimes)) {
-    if (!time) continue;
+    if (!time || name === "Sunrise") continue;
 
     const prayerMinutes = toMinutes(time);
 

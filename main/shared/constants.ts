@@ -9,6 +9,7 @@ export const IpcChannels = {
   UPDATE_SETTINGS: "update-settings",
   PLAY_AUDIO: "play-audio",
   STOP_AUDIO: "stop-audio",
+  MUTE_AUDIO: "mute-audio",
   WINDOW_MINIMIZE: "window-minimize",
   WINDOW_MAXIMIZE: "window-maximize",
   WINDOW_CLOSE: "window-close",

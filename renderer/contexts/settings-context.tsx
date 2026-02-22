@@ -277,109 +277,112 @@ export const SettingsProvider = ({
     return () => removeListener();
   }, []);
 
-  const updateLocationSettings = async (settings: LocationSettings) => {
-    setLocationSettings(settings);
-    if (window.ipc) {
-      await window.ipc.invoke("store-set", "location-settings", settings);
-    }
-  };
+  const updateLocationSettings = useCallback(
+    async (settings: LocationSettings) => {
+      setLocationSettings(settings);
+      if (window.ipc) {
+        await window.ipc.invoke("store-set", "location-settings", settings);
+      }
+    },
+    [],
+  );
 
-  const updateStartAtLogin = async (enabled: boolean) => {
+  const updateStartAtLogin = useCallback(async (enabled: boolean) => {
     setStartAtLogin(enabled);
     if (window.ipc) {
       await window.ipc.invoke("set-startup", enabled);
     }
-  };
+  }, []);
 
-  const updateShowMiniWidget = async (enabled: boolean) => {
+  const updateShowMiniWidget = useCallback(async (enabled: boolean) => {
     setShowMiniWidget(enabled);
     if (window.ipc) {
       await window.ipc.invoke("store-set", "show-mini-widget", enabled);
       if (enabled) window.ipc.send(IpcChannels.OPEN_MINI_WIDGET);
       else window.ipc.send(IpcChannels.CLOSE_MINI_WIDGET);
     }
-  };
+  }, []);
 
-  const updateSelectedAdhan = async (path: string) => {
+  const updateSelectedAdhan = useCallback(async (path: string) => {
     setSelectedAdhan(path);
     if (window.ipc) {
       await window.ipc.invoke("store-set", "selected-adhan", path);
       window.ipc.send("update-prayer-times", { adhan: path });
     }
-  };
+  }, []);
 
-  const updateMiniWidgetAlwaysOnTop = async (enabled: boolean) => {
+  const updateMiniWidgetAlwaysOnTop = useCallback(async (enabled: boolean) => {
     setMiniWidgetAlwaysOnTop(enabled);
     if (window.ipc) {
       await window.ipc.invoke(IpcChannels.TOGGLE_ALWAYS_ON_TOP);
     }
-  };
+  }, []);
 
-  const updateMiniWidgetSize = async (size: number) => {
+  const updateMiniWidgetSize = useCallback(async (size: number) => {
     setMiniWidgetSize(size);
     if (window.ipc) {
       await window.ipc.invoke("store-set", "mini-widget-size", size);
       window.ipc.send("update-mini-widget-size", size);
     }
-  };
+  }, []);
 
-  const updateZikrInterval = async (minutes: number) => {
+  const updateZikrInterval = useCallback(async (minutes: number) => {
     setZikrInterval(minutes);
     if (window.ipc) {
       await window.ipc.invoke("store-set", "zikr-interval", minutes);
       window.ipc.send("update-zikr-settings", { interval: minutes });
     }
-  };
+  }, []);
 
-  const updateZikrDuration = async (seconds: number) => {
+  const updateZikrDuration = useCallback(async (seconds: number) => {
     setZikrDuration(seconds);
     if (window.ipc) {
       await window.ipc.invoke("store-set", "zikr-duration", seconds);
       window.ipc.send("update-zikr-settings", { duration: seconds });
     }
-  };
+  }, []);
 
-  const updateZikrSilent = async (silent: boolean) => {
+  const updateZikrSilent = useCallback(async (silent: boolean) => {
     setZikrSilent(silent);
     if (window.ipc) {
       await window.ipc.invoke("store-set", "zikr-silent", silent);
       window.ipc.send("update-zikr-settings", { silent });
     }
-  };
+  }, []);
 
-  const updateZikrPosition = async (position: string) => {
+  const updateZikrPosition = useCallback(async (position: string) => {
     setZikrPosition(position);
     if (window.ipc) {
       await window.ipc.invoke("store-set", "zikr-position", position);
       window.ipc.send("update-zikr-settings", { position });
       window.ipc.send(IpcChannels.OPEN_ZIKR_WIDGET);
     }
-  };
+  }, []);
 
-  const updateDuaSilent = async (silent: boolean) => {
+  const updateDuaSilent = useCallback(async (silent: boolean) => {
     setDuaSilent(silent);
     if (window.ipc) {
       await window.ipc.invoke("store-set", "dua-silent", silent);
     }
-  };
+  }, []);
 
-  const updateDuaPosition = async (position: string) => {
+  const updateDuaPosition = useCallback(async (position: string) => {
     setDuaPosition(position);
     if (window.ipc) {
       await window.ipc.invoke("store-set", "dua-position", position);
     }
-  };
+  }, []);
 
-  const updateShowAzkarWidget = async (enabled: boolean) => {
+  const updateShowAzkarWidget = useCallback(async (enabled: boolean) => {
     setShowAzkarWidget(enabled);
     if (window.ipc) {
       await window.ipc.invoke("store-set", "azkar-widget-enabled", enabled);
       if (enabled) window.ipc.send("enable-azkar-widget");
       else window.ipc.send("disable-azkar-widget");
     }
-  };
+  }, []);
 
-  const updatePrayerNotifications = async (enabled: boolean) => {
+  const updatePrayerNotifications = useCallback(async (enabled: boolean) => {
     setPrayerNotifications(enabled);
     if (window.ipc) {
       await window.ipc.invoke(
@@ -389,71 +392,110 @@ export const SettingsProvider = ({
       );
       window.ipc.send("update-prayer-times", { prayerNotifications: enabled });
     }
-  };
+  }, []);
 
-  const updateShowPreAdhan = async (enabled: boolean) => {
+  const updateShowPreAdhan = useCallback(async (enabled: boolean) => {
     setShowPreAdhan(enabled);
     if (window.ipc) {
       await window.ipc.invoke("store-set", "show-pre-adhan", enabled);
       window.ipc.send("update-prayer-times", { showPreAdhan: enabled });
     }
-  };
+  }, []);
 
-  const updatePreAdhanMinutes = async (minutes: number) => {
+  const updatePreAdhanMinutes = useCallback(async (minutes: number) => {
     setPreAdhanMinutes(minutes);
     if (window.ipc) {
       await window.ipc.invoke("store-set", "pre-adhan-minutes", minutes);
       window.ipc.send("update-prayer-times", { preAdhanMinutes: minutes });
     }
-  };
+  }, []);
 
-  const updateShowDuaWidget = async (enabled: boolean) => {
+  const updateShowDuaWidget = useCallback(async (enabled: boolean) => {
     setShowDuaWidget(enabled);
     if (window.ipc) {
       await window.ipc.invoke("store-set", "dua-widget-enabled", enabled);
     }
-  };
+  }, []);
+
+  const value = React.useMemo(
+    () => ({
+      locationSettings,
+      startAtLogin,
+      showMiniWidget,
+      selectedAdhan,
+      miniWidgetAlwaysOnTop,
+      miniWidgetSize,
+      zikrInterval,
+      zikrDuration,
+      zikrSilent,
+      zikrPosition,
+      duaSilent,
+      duaPosition,
+      showAzkarWidget,
+      prayerNotifications,
+      showPreAdhan,
+      preAdhanMinutes,
+      showDuaWidget,
+      loading,
+      updateLocationSettings,
+      updateStartAtLogin,
+      updateShowMiniWidget,
+      updateSelectedAdhan,
+      updateMiniWidgetAlwaysOnTop,
+      updateMiniWidgetSize,
+      updateZikrInterval,
+      updateZikrDuration,
+      updateZikrSilent,
+      updateZikrPosition,
+      updateDuaSilent,
+      updateDuaPosition,
+      updateShowAzkarWidget,
+      updatePrayerNotifications,
+      updateShowPreAdhan,
+      updatePreAdhanMinutes,
+      updateShowDuaWidget,
+    }),
+    [
+      locationSettings,
+      startAtLogin,
+      showMiniWidget,
+      selectedAdhan,
+      miniWidgetAlwaysOnTop,
+      miniWidgetSize,
+      zikrInterval,
+      zikrDuration,
+      zikrSilent,
+      zikrPosition,
+      duaSilent,
+      duaPosition,
+      showAzkarWidget,
+      prayerNotifications,
+      showPreAdhan,
+      preAdhanMinutes,
+      showDuaWidget,
+      loading,
+      updateLocationSettings,
+      updateStartAtLogin,
+      updateShowMiniWidget,
+      updateSelectedAdhan,
+      updateMiniWidgetAlwaysOnTop,
+      updateMiniWidgetSize,
+      updateZikrInterval,
+      updateZikrDuration,
+      updateZikrSilent,
+      updateZikrPosition,
+      updateDuaSilent,
+      updateDuaPosition,
+      updateShowAzkarWidget,
+      updatePrayerNotifications,
+      updateShowPreAdhan,
+      updatePreAdhanMinutes,
+      updateShowDuaWidget,
+    ],
+  );
 
   return (
-    <SettingsContext.Provider
-      value={{
-        locationSettings,
-        startAtLogin,
-        showMiniWidget,
-        selectedAdhan,
-        miniWidgetAlwaysOnTop,
-        miniWidgetSize,
-        zikrInterval,
-        zikrDuration,
-        zikrSilent,
-        zikrPosition,
-        duaSilent,
-        duaPosition,
-        showAzkarWidget,
-        prayerNotifications,
-        showPreAdhan,
-        preAdhanMinutes,
-        showDuaWidget,
-        loading,
-        updateLocationSettings,
-        updateStartAtLogin,
-        updateShowMiniWidget,
-        updateSelectedAdhan,
-        updateMiniWidgetAlwaysOnTop,
-        updateMiniWidgetSize,
-        updateZikrInterval,
-        updateZikrDuration,
-        updateZikrSilent,
-        updateZikrPosition,
-        updateDuaSilent,
-        updateDuaPosition,
-        updateShowAzkarWidget,
-        updatePrayerNotifications,
-        updateShowPreAdhan,
-        updatePreAdhanMinutes,
-        updateShowDuaWidget,
-      }}
-    >
+    <SettingsContext.Provider value={value}>
       {children}
     </SettingsContext.Provider>
   );

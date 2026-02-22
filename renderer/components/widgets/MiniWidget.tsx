@@ -6,7 +6,7 @@ import { IpcChannels } from "shared/constants";
 import { useSettings } from "@/contexts/settings-context";
 
 export function MiniWidget() {
-  const { nextPrayer, loading: prayerLoading } = usePrayerTimes();
+  const { nextPrayer, iqamah, loading: prayerLoading } = usePrayerTimes();
   const {
     miniWidgetAlwaysOnTop,
     updateMiniWidgetAlwaysOnTop,
@@ -128,25 +128,46 @@ export function MiniWidget() {
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center gap-2 w-full px-4">
-            {/* Next Prayer Name & Time */}
-            <div className="flex items-center gap-3">
-              <span className="text-2xl font-bold font-quran text-white drop-shadow-md">
-                {nextPrayer?.name}
-              </span>
-              <span className="text-sm bg-white/20 px-2 py-1 rounded-md font-mono text-slate-200 backdrop-blur-sm">
-                {(() => {
-                  if (!nextPrayer?.time) return "--:--";
-                  return nextPrayer.time;
-                })()}
-              </span>
-            </div>
+            {/* Display either Iqamah countdown or Next Prayer info */}
+            {iqamah ? (
+              <>
+                <div className="flex items-center gap-3">
+                  <span className="text-2xl font-bold font-quran text-amber-400 drop-shadow-md">
+                    إقامة {iqamah.name}
+                  </span>
+                  <div className="flex items-center justify-center bg-white/20 p-1.5 rounded-full backdrop-blur-sm">
+                    <span className="text-xl font-bold text-white">+</span>
+                  </div>
+                </div>
+                <div className="flex flex-col items-center">
+                  <span className="text-5xl font-bold font-mono tracking-tighter drop-shadow-lg text-white mt-1">
+                    {iqamah.remaining}
+                  </span>
+                </div>
+              </>
+            ) : (
+              <>
+                {/* Next Prayer Name & Time */}
+                <div className="flex items-center gap-3">
+                  <span className="text-2xl font-bold font-quran text-white drop-shadow-md">
+                    {nextPrayer?.name}
+                  </span>
+                  <span className="text-sm bg-white/20 px-2 py-1 rounded-md font-mono text-slate-200 backdrop-blur-sm">
+                    {(() => {
+                      if (!nextPrayer?.time) return "--:--";
+                      return nextPrayer.time;
+                    })()}
+                  </span>
+                </div>
 
-            {/* Remaining Time - White Only */}
-            <div className="flex flex-col items-center">
-              <span className="text-4xl font-bold font-mono tracking-tighter drop-shadow-lg text-white mt-1">
-                {nextPrayer?.remaining || "00:00:00"} -
-              </span>
-            </div>
+                {/* Remaining Time - White Only */}
+                <div className="flex flex-col items-center">
+                  <span className="text-4xl font-bold font-mono tracking-tighter drop-shadow-lg text-white mt-1">
+                    {nextPrayer?.remaining || "00:00:00"}
+                  </span>
+                </div>
+              </>
+            )}
           </div>
         )}
       </div>

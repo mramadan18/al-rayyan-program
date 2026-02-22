@@ -58,8 +58,15 @@ export default function AdhanWidgetPage() {
 
   // Handle Close Button Click
   const handleClose = () => {
+    // Stop local audio if playing
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.src = "";
+    }
+
     // Send IPC to main process to close this window
     if (window.ipc) {
+      window.ipc.send(IpcChannels.STOP_AUDIO);
       window.ipc.send(IpcChannels.CLOSE_ADHAN_WIDGET);
     }
   };
@@ -91,6 +98,10 @@ export default function AdhanWidgetPage() {
     if (audioRef.current) {
       audioRef.current.muted = muted;
     }
+    // Also notify main process to mute background audio (pre-adhan)
+    if (window.ipc) {
+      window.ipc.send(IpcChannels.MUTE_AUDIO, muted);
+    }
   }, [muted]);
 
   return (
@@ -109,7 +120,7 @@ export default function AdhanWidgetPage() {
           <div className="absolute inset-0 bg-linear-to-br from-primary/5 via-transparent to-transparent pointer-events-none" />
           <div className="absolute -top-10 -right-10 w-32 h-32 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
 
-          <div className="z-10 w-full flex justify-between items-start mb-4">
+          <div className="z-10 w-full flex justify-between items-start mb-0">
             <div className="flex items-center gap-2 text-primary">
               <span className="flex h-2 w-2 relative">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
@@ -129,7 +140,7 @@ export default function AdhanWidgetPage() {
             </Button>
           </div>
 
-          <div className="z-10 text-center py-6 space-y-3 w-full">
+          <div className="z-10 text-center py-4 space-y-3 w-full">
             <h2 className="text-muted-foreground text-sm font-medium">
               {isPreAdhan ? "الوقت المتبقي للأذان" : "حان الآن موعد أذان"}
             </h2>

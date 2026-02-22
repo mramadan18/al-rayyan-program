@@ -4,6 +4,7 @@ import {
   useEffect,
   useState,
   useCallback,
+  useRef,
 } from "react";
 import axios from "axios";
 import { useSettings } from "./settings-context";
@@ -42,11 +43,17 @@ interface PlayerTimesContextType {
     time: string;
     remaining: string;
   } | null;
+  iqamah: {
+    name: string;
+    remaining: string;
+    isGracePeriod: boolean;
+  } | null;
   prayers: Array<{
     name: string;
     englishName: string;
     time: string;
     status: "passed" | "active" | "upcoming";
+    date: Date;
   }>;
   selectedAdhan: string;
   setSelectedAdhan: (path: string) => void;
@@ -99,6 +106,7 @@ export const PlayerTimesProvider = ({
   const [error, setError] = useState<string | null>(null);
   const [nextPrayer, setNextPrayer] =
     useState<PlayerTimesContextType["nextPrayer"]>(null);
+  const [iqamah, setIqamah] = useState<PlayerTimesContextType["iqamah"]>(null);
   const [prayers, setPrayers] = useState<PlayerTimesContextType["prayers"]>([]);
   const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
   const {
@@ -192,7 +200,14 @@ export const PlayerTimesProvider = ({
 
   useEffect(() => {
     fetchData();
-  }, [fetchData]);
+  }, [
+    locationSettings.country,
+    locationSettings.city,
+    locationSettings.lat,
+    locationSettings.lon,
+    locationSettings.calculationMethod,
+    locationSettings.juristicMethod,
+  ]);
 
   // 3. Sync with Main Process
   useEffect(() => {
@@ -205,16 +220,51 @@ export const PlayerTimesProvider = ({
   }, [data, selectedAdhan]);
 
   // 4. Global Audio Listener (Pre-Adhan etc.)
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
   useEffect(() => {
     if (!window.ipc) return;
 
     const handlePlayAudio = (path: string) => {
+      // Stop current if playing
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.src = "";
+      }
+
       const audio = new Audio(path);
+      audioRef.current = audio;
       audio.play().catch((err) => console.error("Audio playback error:", err));
+
+      audio.onended = () => {
+        audioRef.current = null;
+      };
     };
 
-    const removeListener = window.ipc.on("play-audio", handlePlayAudio);
-    return () => removeListener();
+    const handleStopAudio = () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.src = "";
+        audioRef.current = null;
+      }
+    };
+
+    const handleMuteAudio = (muted: boolean) => {
+      if (audioRef.current) {
+        audioRef.current.muted = muted;
+      }
+    };
+
+    const removePlayListener = window.ipc.on("play-audio", handlePlayAudio);
+    const removeStopListener = window.ipc.on("stop-audio", handleStopAudio);
+    const removeMuteListener = window.ipc.on("mute-audio", handleMuteAudio);
+
+    return () => {
+      removePlayListener();
+      removeStopListener();
+      removeMuteListener();
+      handleStopAudio();
+    };
   }, []);
 
   // 4.5. Background Sync Listener
@@ -255,8 +305,36 @@ export const PlayerTimesProvider = ({
       "prayer-times-changed",
       handlePrayerTimesChanged,
     );
-    return () => removeListener();
+
+    /* 
+    const removeTestIqamahListener = window.ipc.on("test-iqamah", () => {
+      if (testIqamahTimeoutRef.current) {
+        clearTimeout(testIqamahTimeoutRef.current);
+      }
+
+      setIqamah({
+        name: "تجربة",
+        remaining: "00:05", // Example of upward count (5 seconds passed)
+        isGracePeriod: true,
+      });
+
+      // Maintain test state for 60 seconds
+      testIqamahTimeoutRef.current = setTimeout(() => {
+        setIqamah(null);
+        testIqamahTimeoutRef.current = null;
+      }, 60000);
+    });
+    */
+
+    return () => {
+      removeListener();
+      // removeTestIqamahListener();
+      if (testIqamahTimeoutRef.current)
+        clearTimeout(testIqamahTimeoutRef.current);
+    };
   }, []);
+
+  const testIqamahTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // 5. Prayer Status Calculation
   const calculateStatus = useCallback(() => {
@@ -301,6 +379,7 @@ export const PlayerTimesProvider = ({
             : i === activeIndex
               ? "active"
               : "upcoming",
+        date: p.date,
       })),
     );
 
@@ -322,6 +401,32 @@ export const PlayerTimesProvider = ({
       time: next.time,
       remaining: `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`,
     });
+
+    // Calculate Iqamah (20 mins after active prayer) - NOW COUNTING UPWARDS
+    // Only calculate if not in test mode
+    // if (!testIqamahTimeoutRef.current) {
+    if (activeIndex !== -1) {
+      const activePrayer = prayerList[activeIndex];
+      const diffSinceActive = now.getTime() - activePrayer.date.getTime();
+      const iqamahDuration = 20 * 60 * 1000; // 20 minutes
+
+      if (diffSinceActive >= 0 && diffSinceActive < iqamahDuration) {
+        // Count UPWARDS from 00:00
+        const elapsed = diffSinceActive;
+        const m = Math.floor(elapsed / 60000);
+        const s = Math.floor((elapsed % 60000) / 1000);
+        setIqamah({
+          name: activePrayer.name,
+          remaining: `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`,
+          isGracePeriod: true,
+        });
+      } else {
+        setIqamah(null);
+      }
+    } else {
+      setIqamah(null);
+    }
+    // }
   }, [data]);
 
   useEffect(() => {
@@ -341,6 +446,7 @@ export const PlayerTimesProvider = ({
         loading,
         error,
         nextPrayer,
+        iqamah,
         prayers,
         selectedAdhan,
         setSelectedAdhan,
