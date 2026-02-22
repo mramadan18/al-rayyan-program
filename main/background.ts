@@ -1,5 +1,5 @@
 import path from "path";
-import { app, BrowserWindow } from "electron";
+import { app, BrowserWindow, session } from "electron";
 import serve from "electron-serve";
 import { createWindow } from "./helpers";
 import { registerIpcHandlers } from "./ipc";
@@ -107,6 +107,17 @@ if (!gotTheLock) {
 
     // Register all IPC handlers (Only once)
     registerIpcHandlers();
+
+    // Handle session permissions (e.g. geolocation)
+    session.defaultSession.setPermissionRequestHandler(
+      (webContents, permission, callback) => {
+        if (permission === "geolocation") {
+          callback(true); // Approve
+        } else {
+          callback(false); // Deny
+        }
+      },
+    );
 
     // Sync startup settings
     syncStartupSettings();

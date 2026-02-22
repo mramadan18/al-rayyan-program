@@ -8,7 +8,7 @@ interface QuranHeaderProps {
   // Surah selector props
   currentSurahNumber: number;
   currentSurahName?: string;
-  surahList: Array<{ number: number; name: string; englishName: string }>;
+  surahList: Array<{ number: number; name: string; numberOfAyahs: number }>;
   surahListLoading: boolean;
   onSelectSurah: (number: number) => void;
   onNextSurah: () => void;

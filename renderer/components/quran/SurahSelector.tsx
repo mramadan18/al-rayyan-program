@@ -18,7 +18,7 @@ import { BookOpen, Check, ChevronLeft, ChevronRight } from "lucide-react";
 interface SurahSelectorProps {
   currentSurahNumber: number;
   currentSurahName?: string;
-  surahList: Array<{ number: number; name: string; englishName: string }>;
+  surahList: Array<{ number: number; name: string; numberOfAyahs: number }>;
   surahListLoading: boolean;
   onSelectSurah: (number: number) => void;
   onNext: () => void;
@@ -81,14 +81,16 @@ export function SurahSelector({
                   surahList.map((surah) => (
                     <CommandItem
                       key={surah.number}
-                      value={`${surah.number} ${surah.name} ${surah.englishName}`}
+                      value={`${surah.number} ${surah.name} ${surah.numberOfAyahs}`}
                       onSelect={() => {
                         onSelectSurah(surah.number);
                         setOpen(false);
                       }}
                       className="font-quran text-right flex justify-between cursor-pointer py-2 px-4 hover:bg-primary/5"
                     >
-                      <span>{surah.name}</span>
+                      <span>
+                        {surah.name} - {surah.numberOfAyahs} آية
+                      </span>
                       <div className="flex items-center gap-3">
                         <span className="text-muted-foreground text-xs font-sans opacity-60">
                           {surah.number}
