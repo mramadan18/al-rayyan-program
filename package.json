@@ -9,6 +9,9 @@
   "scripts": {
     "dev": "nextron",
     "build": "nextron build",
+    "build:mac": "nextron build --mac",
+    "build:mac:universal": "nextron build --mac --universal",
+    "build:linux": "nextron build --linux",
     "postinstall": "electron-builder install-app-deps",
     "release:beta": "npm version prerelease --preid=beta -m \"chore(release): %s\" && git push origin main --tags",
     "release:patch": "npm version patch -m \"chore(release): %s\" && git push origin main --tags",
