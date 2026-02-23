@@ -5,7 +5,7 @@
   "description": "Al-Rayyan: A comprehensive Islamic desktop application providing prayer times, Quran, Adhan notifications, and spiritual tools.",
   "homepage": "https://github.com/your-username/al-rayyan-program",
   "author": "Mahmoud Ramadan <m.ramadan181199@gmail.com>",
-  "version": "1.2.5",
+  "version": "1.2.6",
   "main": "app/background.js",
   "scripts": {
     "dev": "nextron",
