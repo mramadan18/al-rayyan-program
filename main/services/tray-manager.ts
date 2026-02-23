@@ -12,9 +12,14 @@ export const createTray = (mainWindow: BrowserWindow) => {
     ? path.join(__dirname, "images/logo.png")
     : path.join(__dirname, "../renderer/public/images/logo.png");
 
-  const icon = nativeImage
-    .createFromPath(iconPath)
-    .resize({ width: 16, height: 16 });
+  let icon = nativeImage.createFromPath(iconPath);
+
+  if (process.platform === "darwin") {
+    icon = icon.resize({ width: 22, height: 22 });
+    icon.setTemplateImage(true);
+  } else {
+    icon = icon.resize({ width: 16, height: 16 });
+  }
 
   tray = new Tray(icon);
   tray.setToolTip("Al-Rayyan");

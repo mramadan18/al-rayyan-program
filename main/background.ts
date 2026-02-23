@@ -124,24 +124,39 @@ if (!gotTheLock) {
 
     await startApp();
   })();
+
+  // prevent app from quitting when all windows are closed
+  app.on("window-all-closed", () => {
+    // We keep the app running in the tray
+    if (process.platform !== "darwin" && getIsQuitting()) {
+      app.quit();
+    }
+  });
+
+  app.on("activate", () => {
+    if (BrowserWindow.getAllWindows().length === 0) {
+      startApp();
+    } else {
+      mainWindow?.show();
+    }
+  });
 }
 
 function syncStartupSettings() {
   const startAtLogin = store.get("start-at-login");
 
   if (startAtLogin !== undefined) {
-    app.setLoginItemSettings({
+    const settings: Electron.Settings = {
       openAtLogin: startAtLogin as boolean,
-      path: app.getPath("exe"),
-      args: ["--hidden"],
-    });
+    };
+
+    if (process.platform === "win32") {
+      settings.path = app.getPath("exe");
+      settings.args = ["--hidden"];
+    } else if (process.platform === "darwin") {
+      settings.openAsHidden = true;
+    }
+
+    app.setLoginItemSettings(settings);
   }
 }
-
-// prevent app from quitting when all windows are closed
-app.on("window-all-closed", () => {
-  // We keep the app running in the tray
-  if (process.platform !== "darwin" && getIsQuitting()) {
-    app.quit();
-  }
-});

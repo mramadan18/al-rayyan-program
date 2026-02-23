@@ -24,6 +24,7 @@ const handler = {
   setZoom(factor: number) {
     webFrame.setZoomFactor(factor);
   },
+  platform: process.platform,
 };
 
 contextBridge.exposeInMainWorld("ipc", handler);

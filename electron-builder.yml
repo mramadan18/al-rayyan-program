@@ -16,6 +16,16 @@ publish:
 win:
   target: nsis
   icon: resources/icon.ico
+mac:
+  target: dmg
+  icon: resources/icon.icns
+  category: public.app-category.lifestyle
+linux:
+  target:
+    - AppImage
+    - deb
+  category: Utility
+  icon: resources/icon.ico
 nsis:
   oneClick: false
   perMachine: true
