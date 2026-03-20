@@ -24,5 +24,31 @@ version-resolver:
       - "minor"
   default: patch
 template: |
-  ## What's Changed
+  # 🌙 Al-Rayyan - $RESOLVED_VERSION
+
+  We are pleased to announce the release of **Al-Rayyan** $RESOLVED_VERSION, a comprehensive Islamic desktop application. This update focuses on streamlining the installation process and unifying build assets across all platforms.
+
+  ## 🚀 Direct Download Links
+
+  | Operating System | File Type | Download Link |
+  | :--- | :--- | :--- |
+  | **Windows** | 🪟 Setup (.exe) | [Download for Windows](https://github.com/mramadan18/al-rayyan-program/releases/download/v$RESOLVED_VERSION/Al-Rayyan-Setup-$RESOLVED_VERSION.exe) |
+  | **macOS** | 🍎 Apple Silicon (.dmg) | [Download for macOS](https://github.com/mramadan18/al-rayyan-program/releases/download/v$RESOLVED_VERSION/Al-Rayyan-$RESOLVED_VERSION-arm64.dmg) |
+  | **Linux** | 🐧 AppImage | [Download for Linux (AppImage)](https://github.com/mramadan18/al-rayyan-program/releases/download/v$RESOLVED_VERSION/Al-Rayyan-$RESOLVED_VERSION.AppImage) |
+  | **Linux** | 📦 Debian (.deb) | [Download for Linux (Debian)](https://github.com/mramadan18/al-rayyan-program/releases/download/v$RESOLVED_VERSION/al-rayyan_$RESOLVED_VERSION_amd64.deb) |
+
+  ---
+
+  ## 🛠️ What's Changed
   $CHANGES
+
+  ---
+
+  ## ⚠️ Technical Information
+  > [!TIP]
+  > **Automatic Updates:** If you already have the application installed, it will automatically update in the background..
+  > 
+  > **Note on Assets:** The `.blockmap` and `.yml` files listed below are used by the application for differential updates. You do not need to download these files manually.
+
+  ---
+  **Full Changelog:** [View Compare](${{ github.event.compare }})
