@@ -97,7 +97,11 @@ export function PrayerTimeline({
           <div className="hidden md:block absolute top-9 left-0 right-0 h-1 bg-muted rounded-full -z-10">
             <div
               className="h-full bg-primary/30 rounded-full transition-all duration-1000 ease-out"
-              style={{ width: `${progress}%`, direction: "ltr" }}
+              style={{
+                width: `${progress}%`,
+                position: "absolute",
+                right: 0,
+              }}
             />
           </div>
 
@@ -105,7 +109,11 @@ export function PrayerTimeline({
           <div className="md:hidden absolute right-9 top-0 bottom-0 w-1 bg-muted rounded-full -z-10">
             <div
               className="w-full bg-primary/30 rounded-full transition-all duration-1000 ease-out"
-              style={{ height: `${progress}%` }}
+              style={{
+                height: `${progress}%`,
+                position: "absolute",
+                top: 0,
+              }}
             />
           </div>
 

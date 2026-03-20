@@ -18,6 +18,10 @@ const store = new Store();
 
 const isProd = process.env.NODE_ENV === "production";
 
+if (process.platform === "win32") {
+  app.setAppUserModelId("com.alrayyan.app");
+}
+
 // Allow audio autoplay without user interaction (crucial for background alerts)
 app.commandLine.appendSwitch("autoplay-policy", "no-user-gesture-required");
 

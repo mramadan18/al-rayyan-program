@@ -439,16 +439,26 @@ export const PlayerTimesProvider = ({
     if (now < prayerList[0].date) activeIndex = -1;
 
     setPrayers(
-      prayerList.map((p, i) => ({
-        ...p,
-        status:
-          i < activeIndex
-            ? "passed"
-            : i === activeIndex
-              ? "active"
-              : "upcoming",
-        date: p.date,
-      })),
+      prayerList.map((p, i) => {
+        let status: "passed" | "active" | "upcoming" = "upcoming";
+
+        const nextPrayerIdx = (activeIndex + 1) % prayerList.length;
+
+        if (i === nextPrayerIdx) {
+          status = "active";
+        } else if (
+          (activeIndex !== -1 && i <= activeIndex) ||
+          (activeIndex === -1 && i === prayerList.length - 1 && now < prayerList[0].date)
+        ) {
+          status = "passed";
+        }
+
+        return {
+          ...p,
+          status,
+          date: p.date,
+        };
+      }),
     );
 
     // Calculate next prayer

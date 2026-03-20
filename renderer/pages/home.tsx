@@ -19,7 +19,7 @@ export default function HomePage() {
   }, []);
 
   const adjustedDate = new Date();
-  adjustedDate.setDate(adjustedDate.getDate() - 1);
+  adjustedDate.setDate(adjustedDate.getDate());
 
   const hijriDate = !mounted
     ? ""
@@ -68,7 +68,7 @@ export default function HomePage() {
 
           <section className="lg:col-span-1">
             {completionLoading ? (
-              <div className="h-full min-h-[150px] bg-card animate-pulse rounded-2xl" />
+              <div className="h-full min-h-37.5 bg-card animate-pulse rounded-2xl" />
             ) : (
               <QuranCompletionCard
                 progress={completionState.progress}

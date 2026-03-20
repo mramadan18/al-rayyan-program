@@ -6,7 +6,7 @@ import {
   Scroll,
   Settings,
   Radio,
-  Moon,
+  // Moon,
   Calculator,
   RefreshCw,
 } from "lucide-react";
@@ -19,7 +19,7 @@ const NAV_ITEMS = [
   { label: "الرئيسية", icon: Home, href: "/home" },
   { label: "المصحف", icon: BookOpen, href: "/quran" },
   { label: "الإذاعة", icon: Radio, href: "/radio" },
-  { label: "إمساكية", icon: Moon, href: "/ramadan" },
+  // { label: "إمساكية", icon: Moon, href: "/ramadan" },
   { label: "الزكاة", icon: Calculator, href: "/zakat" },
   { label: "الأذكار", icon: Scroll, href: "/azkar" },
   { label: "الإعدادات", icon: Settings, href: "/settings" },
