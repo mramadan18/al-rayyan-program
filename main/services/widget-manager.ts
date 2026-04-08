@@ -58,6 +58,8 @@ export const showAdhanWidget = async (
     },
   });
 
+  widgetWindow.setAlwaysOnTop(true, "screen-saver");
+
   const isProd = process.env.NODE_ENV === "production";
   const query = `prayer=${encodeURIComponent(prayerName)}&audio=${encodeURIComponent(audioPath)}${targetTime ? `&targetTime=${targetTime}` : ""}`;
 

@@ -99,6 +99,8 @@ export const createZikrWidget = async () => {
     },
   });
 
+  zikrWidgetWindow.setAlwaysOnTop(true, "screen-saver");
+
   const baseUrl = isProd
     ? `app://./widgets/zikr`
     : `http://localhost:${process.argv[2]}/widgets/zikr`;

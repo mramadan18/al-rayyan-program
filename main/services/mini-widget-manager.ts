@@ -54,6 +54,10 @@ export const openMiniWidget = async () => {
     },
   });
 
+  if (isAlwaysOnTop) {
+    miniWidgetWindow.setAlwaysOnTop(true, "screen-saver");
+  }
+
   const isProd = process.env.NODE_ENV === "production";
   const url = isProd
     ? `app://./widgets/mini-prayer`
@@ -121,7 +125,7 @@ export const toggleAlwaysOnTop = () => {
   if (miniWidgetWindow && !miniWidgetWindow.isDestroyed()) {
     const currentState = miniWidgetWindow.isAlwaysOnTop();
     const newState = !currentState;
-    miniWidgetWindow.setAlwaysOnTop(newState);
+    miniWidgetWindow.setAlwaysOnTop(newState, newState ? "screen-saver" : "normal");
     store.set("mini-widget-always-on-top", newState);
     return newState;
   }

@@ -100,6 +100,8 @@ export const createDuaWidget = async (volume: number = 1) => {
     },
   });
 
+  duaWidgetWindow.setAlwaysOnTop(true, "screen-saver");
+
   const baseUrl = isProd
     ? `app://./widgets/dua`
     : `http://localhost:${process.argv[2]}/widgets/dua`;
