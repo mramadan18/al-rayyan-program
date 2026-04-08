@@ -7,7 +7,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { cn } from "@/lib/utils";
+import { cn, copyToClipboard } from "@/lib/utils";
 
 interface VerseItemProps {
   verse: {
@@ -33,7 +33,7 @@ export function VerseItem({
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   const handleCopyVerse = () => {
-    navigator.clipboard.writeText(verse.text);
+    copyToClipboard(verse.text);
   };
 
   // Handle right-click to open dropdown

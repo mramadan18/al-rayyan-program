@@ -8,6 +8,7 @@ import { ZakatMaalForm } from "./zakat/ZakatMaalForm";
 import { ZakatFitrForm } from "./zakat/ZakatFitrForm";
 import { ZakatFooter } from "./zakat/ZakatFooter";
 import { NetworkErrorBanner } from "@/components/common/NetworkErrorBanner";
+import { copyToClipboard } from "@/lib/utils";
 
 export function ZakatCalculator() {
   const [isMounted, setIsMounted] = useState(false);
@@ -42,7 +43,7 @@ export function ZakatCalculator() {
   } = useZakatCalculator();
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(totalZakat.toFixed(2));
+    copyToClipboard(totalZakat.toFixed(2));
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };

@@ -9,6 +9,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Copy, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { copyToClipboard } from "@/lib/utils";
 
 interface TafsirVerse {
   text: string;
@@ -36,7 +37,7 @@ export function QuranTafsirSheet({
   error,
 }: QuranTafsirSheetProps) {
   const handleCopyText = (text: string) => {
-    navigator.clipboard.writeText(text);
+    copyToClipboard(text);
   };
 
   return (

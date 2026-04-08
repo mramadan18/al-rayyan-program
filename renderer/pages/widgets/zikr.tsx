@@ -15,7 +15,7 @@ import {
 import azkarData from "@/public/data/azkar.json";
 import { Zikr } from "@/types/azkar";
 import { IpcChannels } from "shared/constants";
-import { cn } from "@/lib/utils";
+import { cn, copyToClipboard } from "@/lib/utils";
 
 const DEFAULT_DURATION = 30000; // 30 seconds default
 const UPDATE_INTERVAL = 100;
@@ -43,7 +43,7 @@ export default function ZikrWidget() {
 
   const handleCopy = useCallback(() => {
     if (zikr?.content) {
-      navigator.clipboard.writeText(zikr.content);
+      copyToClipboard(zikr.content);
       setIsCopied(true);
       setTimeout(() => setIsCopied(false), 2000);
     }

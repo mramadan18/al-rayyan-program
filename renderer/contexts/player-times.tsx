@@ -447,8 +447,9 @@ export const PlayerTimesProvider = ({
         if (i === nextPrayerIdx) {
           status = "active";
         } else if (
-          (activeIndex !== -1 && i <= activeIndex) ||
-          (activeIndex === -1 && i === prayerList.length - 1 && now < prayerList[0].date)
+          nextPrayerIdx !== 0 &&
+          ((activeIndex !== -1 && i <= activeIndex) ||
+            (activeIndex === -1 && i === prayerList.length - 1 && now < prayerList[0].date))
         ) {
           status = "passed";
         }
