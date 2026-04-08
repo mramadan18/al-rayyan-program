@@ -74,7 +74,9 @@ if (!gotTheLock) {
     } else {
       const port = process.argv[2];
       await mainWindow.loadURL(`http://localhost:${port}/home`);
-      mainWindow.webContents.openDevTools();
+      if (!isHidden) {
+        mainWindow.webContents.openDevTools();
+      }
     }
 
     // Auto-open Mini Widget if enabled
@@ -90,7 +92,7 @@ if (!gotTheLock) {
     }
   };
 
-  app.on("second-instance", () => {
+  app.on("second-instance", (event, commandLine) => {
     // Someone tried to run a second instance
     if (mainWindow) {
       if (!isProd) {
@@ -99,10 +101,14 @@ if (!gotTheLock) {
         startApp();
         return;
       }
-      // In production: Focus existing window
-      if (mainWindow.isMinimized()) mainWindow.restore();
-      if (!mainWindow.isVisible()) mainWindow.show();
-      mainWindow.focus();
+      // If the second instance was launched with --hidden (e.g. at startup while another instance is already running), don't show the window.
+      const isSecondInstanceHidden = commandLine.includes("--hidden");
+      if (!isSecondInstanceHidden) {
+        // In production: Focus existing window
+        if (mainWindow.isMinimized()) mainWindow.restore();
+        if (!mainWindow.isVisible()) mainWindow.show();
+        mainWindow.focus();
+      }
     }
   });
 
@@ -141,7 +147,10 @@ if (!gotTheLock) {
     if (BrowserWindow.getAllWindows().length === 0) {
       startApp();
     } else {
-      mainWindow?.show();
+      const isHidden = process.argv.includes("--hidden");
+      if (!isHidden) {
+        mainWindow?.show();
+      }
     }
   });
 }
