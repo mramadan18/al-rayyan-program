@@ -23,6 +23,8 @@ export function RadioModule() {
     setSelectedCategory,
     togglePlay,
     filteredRadios,
+    playNext,
+    playPrevious,
   } = useRadioContext();
 
   const cairoRadio = radios.find((r) => r.id === "cairo_quran_fm");
@@ -37,7 +39,7 @@ export function RadioModule() {
   ];
 
   return (
-    <div className="flex flex-col h-[calc(100vh-140px)] w-full" dir="rtl">
+    <div className="flex flex-col h-full w-full relative" dir="rtl">
       <NetworkErrorBanner
         description="يرجى الاتصال بالشبكة لتتمكن من الاستماع إلى البث المباشر لإذاعات القرآن الكريم."
         showAction={false}
@@ -50,7 +52,14 @@ export function RadioModule() {
           className={`mb-6 animate-in slide-in-from-top duration-500 ${!isOnline ? "opacity-50 grayscale pointer-events-none" : ""}`}
         >
           <div
-            onClick={() => isOnline && setCurrentRadio(cairoRadio)}
+            onClick={() => {
+              if (!isOnline) return;
+              if (currentRadio?.id === cairoRadio.id) {
+                togglePlay();
+              } else {
+                setCurrentRadio(cairoRadio);
+              }
+            }}
             className={`
               relative overflow-hidden rounded-2xl border cursor-pointer transition-all duration-300 group
               ${
@@ -200,13 +209,19 @@ export function RadioModule() {
 
       {/* Stations Grid */}
       <div
-        className={!isOnline ? "opacity-50 grayscale pointer-events-none" : ""}
+        className={`flex-1 min-h-0 overflow-hidden ${!isOnline ? "opacity-50 grayscale pointer-events-none" : ""}`}
       >
         <RadioGrid
           radios={gridRadios}
           currentRadio={currentRadio}
           isPlaying={isPlaying}
-          onSelect={setCurrentRadio}
+          onSelect={(radio) => {
+            if (currentRadio?.id === radio.id) {
+              togglePlay();
+            } else {
+              setCurrentRadio(radio);
+            }
+          }}
         />
       </div>
 
@@ -220,6 +235,8 @@ export function RadioModule() {
           setVolume={setVolume}
           isMuted={isMuted}
           toggleMute={toggleMute}
+          onNext={playNext}
+          onPrevious={playPrevious}
         />
       )}
     </div>

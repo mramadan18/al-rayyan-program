@@ -17,7 +17,7 @@ export function RadioGrid({
   onSelect,
 }: RadioGridProps) {
   return (
-    <ScrollArea className="flex-1 -mr-4 pr-4">
+    <ScrollArea dir="rtl" className="flex-1 -mr-4 pr-4">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pb-32">
         {radios.map((radio) => (
           <RadioCard

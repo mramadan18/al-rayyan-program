@@ -35,6 +35,8 @@ interface RadioContextType {
   togglePlay: () => void;
   handleError: () => void;
   filteredRadios: RadioStation[];
+  playNext: () => void;
+  playPrevious: () => void;
 }
 
 const RadioContext = createContext<RadioContextType | undefined>(undefined);
@@ -74,6 +76,12 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
             if (found) {
               setCurrentRadio(found);
             }
+          }
+
+          // Load last volume level
+          const lastVolume = await window.ipc.invoke("store-get", "radio-volume");
+          if (lastVolume !== undefined && lastVolume !== null) {
+            setVolume([lastVolume]);
           }
         }
       } catch (error) {
@@ -138,11 +146,84 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
     }
   }, [currentRadio]);
 
+  const playNext = () => {
+    if (!currentRadio || radios.length === 0) return;
+    const index = radios.findIndex((r) => r.id === currentRadio.id);
+    if (index === -1) return;
+    const nextIndex = (index + 1) % radios.length;
+    setCurrentRadio(radios[nextIndex]);
+  };
+
+  const playPrevious = () => {
+    if (!currentRadio || radios.length === 0) return;
+    const index = radios.findIndex((r) => r.id === currentRadio.id);
+    if (index === -1) return;
+    const prevIndex = (index - 1 + radios.length) % radios.length;
+    setCurrentRadio(radios[prevIndex]);
+  };
+
   useEffect(() => {
     if (audioRef.current) {
       audioRef.current.volume = isMuted ? 0 : volume[0];
     }
+    // Save volume level
+    if (window.ipc) {
+      window.ipc.invoke("store-set", "radio-volume", volume[0]);
+    }
   }, [volume, isMuted]);
+  
+  // Media Session handling for Windows/Global Media Controls
+  useEffect(() => {
+    if ("mediaSession" in navigator && currentRadio) {
+      navigator.mediaSession.metadata = new MediaMetadata({
+        title: currentRadio.name,
+        artist: "الريّان - الإذاعة",
+        album: "البث المباشر",
+        artwork: [
+          { src: "/images/logo.png", sizes: "96x96", type: "image/png" },
+          { src: "/images/logo.png", sizes: "128x128", type: "image/png" },
+          { src: "/images/logo.png", sizes: "192x192", type: "image/png" },
+          { src: "/images/logo.png", sizes: "256x256", type: "image/png" },
+          { src: "/images/logo.png", sizes: "384x384", type: "image/png" },
+          { src: "/images/logo.png", sizes: "512x512", type: "image/png" },
+        ],
+      });
+    }
+  }, [currentRadio]);
+
+  useEffect(() => {
+    if ("mediaSession" in navigator) {
+      navigator.mediaSession.playbackState = isPlaying ? "playing" : "paused";
+    }
+  }, [isPlaying]);
+
+  useEffect(() => {
+    if (!("mediaSession" in navigator)) return;
+
+    const currentTogglePlay = togglePlay;
+    
+    navigator.mediaSession.setActionHandler("play", () => {
+      currentTogglePlay();
+    });
+    navigator.mediaSession.setActionHandler("pause", () => {
+      currentTogglePlay();
+    });
+
+    navigator.mediaSession.setActionHandler("previoustrack", () => {
+      playPrevious();
+    });
+
+    navigator.mediaSession.setActionHandler("nexttrack", () => {
+      playNext();
+    });
+
+    return () => {
+      navigator.mediaSession.setActionHandler("play", null);
+      navigator.mediaSession.setActionHandler("pause", null);
+      navigator.mediaSession.setActionHandler("previoustrack", null);
+      navigator.mediaSession.setActionHandler("nexttrack", null);
+    };
+  }, [currentRadio, radios, togglePlay]);
 
   // Listen for tray radio toggle command
   useEffect(() => {
@@ -208,6 +289,8 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
     togglePlay,
     handleError,
     filteredRadios,
+    playNext,
+    playPrevious,
   };
 
   return (

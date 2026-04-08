@@ -1,6 +1,16 @@
-import { Play, Pause, Radio, Volume2, VolumeX } from "lucide-react";
+import {
+  Play,
+  Pause,
+  Radio,
+  Volume2,
+  VolumeX,
+  SkipBack,
+  SkipForward,
+} from "lucide-react";
 import { Slider } from "@/components/ui/slider";
 import { Button } from "@/components/ui/button";
+import { Tooltip } from "@/components/ui/tooltip";
+import { cn } from "@/lib/utils";
 import { RadioStation } from "@/contexts/radio-context";
 
 interface RadioPlayerBarProps {
@@ -11,6 +21,8 @@ interface RadioPlayerBarProps {
   setVolume: (value: number[]) => void;
   isMuted: boolean;
   toggleMute: () => void;
+  onNext?: () => void;
+  onPrevious?: () => void;
 }
 
 export function RadioPlayerBar({
@@ -21,6 +33,8 @@ export function RadioPlayerBar({
   setVolume,
   isMuted,
   toggleMute,
+  onNext,
+  onPrevious,
 }: RadioPlayerBarProps) {
   return (
     <div className="absolute bottom-0 left-0 right-0 z-100 p-4 animate-in slide-in-from-bottom duration-300">
@@ -48,7 +62,17 @@ export function RadioPlayerBar({
         </div>
 
         {/* Playback Controls */}
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-4" dir="ltr">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="text-slate-400 hover:text-white hover:bg-white/10"
+            onClick={onNext}
+            title="الإطاعة التالية"
+          >
+            <SkipBack className="w-5 h-5 fill-current" />
+          </Button>
+
           <Button
             size="icon"
             className="w-14 h-14 rounded-full bg-amber-500 hover:bg-amber-600 text-slate-950 shadow-lg shadow-amber-900/20"
@@ -60,10 +84,20 @@ export function RadioPlayerBar({
               <Play className="w-6 h-6 fill-current ml-1" />
             )}
           </Button>
+
+          <Button
+            variant="ghost"
+            size="icon"
+            className="text-slate-400 hover:text-white hover:bg-white/10"
+            onClick={onPrevious}
+            title="الإطاعة السابقة"
+          >
+            <SkipForward className="w-5 h-5 fill-current" />
+          </Button>
         </div>
 
         {/* Volume Control */}
-        <div className="hidden md:flex items-center gap-3 w-48 flex-1 justify-end">
+        <div className="hidden md:flex items-center gap-3 w-40 flex-1 justify-end group">
           <Button
             variant="ghost"
             size="icon"
@@ -76,13 +110,16 @@ export function RadioPlayerBar({
               <Volume2 className="w-5 h-5" />
             )}
           </Button>
-          <Slider
-            value={[isMuted ? 0 : volume[0] * 100]}
-            max={100}
-            step={1}
-            onValueChange={(val) => setVolume([val[0] / 100])}
-            className="w-32 cursor-pointer"
-          />
+
+          <Tooltip content={`%${Math.round(volume[0] * 100)}`} side="top">
+            <Slider
+              value={[isMuted ? 0 : volume[0] * 100]}
+              max={100}
+              step={2}
+              onValueChange={(val) => setVolume([val[0] / 100])}
+              className="w-28 cursor-pointer"
+            />
+          </Tooltip>
         </div>
       </div>
     </div>
