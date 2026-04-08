@@ -1,9 +1,9 @@
-import { useEffect } from "react";
 import { useRouter } from "next/router";
 import { cn } from "@/lib/utils";
 import { Toaster } from "@/components/ui/sonner";
 import { TitleBar } from "@/components/layout/TitleBar";
 import { Sidebar } from "@/components/layout/Sidebar";
+import { Suspense } from "react";
 import { PlayerTimesProvider } from "@/contexts/player-times";
 import { UpdateModal } from "@/components/common/UpdateModal";
 import { LocationModal } from "@/components/common/LocationModal";
@@ -14,17 +14,8 @@ interface LayoutProps {
 }
 
 export default function Layout({ children }: LayoutProps) {
-  const router = useRouter();
   // Initialize zoom shortcuts
   useWindowZoom();
-
-  // Reset scroll on route change
-  useEffect(() => {
-    const container = document.getElementById("main-scroll-container");
-    if (container) {
-      container.scrollTop = 0;
-    }
-  }, [router.asPath]);
 
   // Hide sidebar on specific routes like Quran reader if needed (Phase 3 requirement)
 

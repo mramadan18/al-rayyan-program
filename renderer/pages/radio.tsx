@@ -8,11 +8,8 @@ export default function RadioPage() {
   const dynamicTitle = currentRadio ? currentRadio.name : "الإذاعة";
 
   return (
-    <PageLayout 
-      title={dynamicTitle}
-      containerClassName="p-0 flex flex-col h-full w-full overflow-hidden"
-    >
-      <div className="flex-1 w-full px-4 md:px-8 py-4 overflow-hidden">
+    <PageLayout title={dynamicTitle}>
+      <div className="container mx-auto max-w-7xl h-full py-6">
         <RadioModule />
       </div>
     </PageLayout>

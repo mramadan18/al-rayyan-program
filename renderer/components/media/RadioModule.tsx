@@ -39,7 +39,7 @@ export function RadioModule() {
   ];
 
   return (
-    <div className="flex flex-col h-full w-full relative" dir="rtl">
+    <div className="flex flex-col h-[calc(100vh-140px)] w-full" dir="rtl">
       <NetworkErrorBanner
         description="يرجى الاتصال بالشبكة لتتمكن من الاستماع إلى البث المباشر لإذاعات القرآن الكريم."
         showAction={false}
@@ -209,7 +209,7 @@ export function RadioModule() {
 
       {/* Stations Grid */}
       <div
-        className={`flex-1 min-h-0 overflow-hidden ${!isOnline ? "opacity-50 grayscale pointer-events-none" : ""}`}
+        className={!isOnline ? "opacity-50 grayscale pointer-events-none" : ""}
       >
         <RadioGrid
           radios={gridRadios}
