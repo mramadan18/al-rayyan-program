@@ -11,6 +11,7 @@ export default function AdhanWidgetPage() {
   const [prayerName, setPrayerName] = useState<string>("");
   const [audioPath, setAudioPath] = useState<string>("");
   const [muted, setMuted] = useState(false);
+  const [volume, setVolume] = useState(1);
   const [timeLeft, setTimeLeft] = useState<string>("");
   const [isPreAdhan, setIsPreAdhan] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -31,6 +32,9 @@ export default function AdhanWidgetPage() {
       if (prayer) setPrayerName(prayer as string);
       if (audio) {
         setAudioPath(audio as string);
+      }
+      if (router.query.volume) {
+        setVolume(parseFloat(router.query.volume as string));
       }
 
       if (targetTime) {
@@ -75,6 +79,7 @@ export default function AdhanWidgetPage() {
     if (audioPath) {
       const audio = new Audio(audioPath);
       audio.muted = muted;
+      audio.volume = volume;
       audio
         .play()
         .catch((err) => console.error("Widget audio play error:", err));
@@ -103,6 +108,26 @@ export default function AdhanWidgetPage() {
       window.ipc.send(IpcChannels.MUTE_AUDIO, muted);
     }
   }, [muted]);
+
+  useEffect(() => {
+    if (!window.ipc) return;
+
+    const handleSettingsUpdated = (payload: { key: string; val: any }) => {
+      if (payload.key === "widgets-volume") {
+        const newVolume = payload.val / 100;
+        setVolume(newVolume);
+        if (audioRef.current) {
+          audioRef.current.volume = newVolume;
+        }
+      }
+    };
+
+    const removeListener = window.ipc.on(
+      "settings-updated",
+      handleSettingsUpdated,
+    );
+    return () => removeListener();
+  }, []);
 
   return (
     <>

@@ -36,6 +36,7 @@ interface SettingsContextType {
   preAdhanMinutes: number;
   showDuaWidget: boolean;
   loading: boolean;
+  widgetsVolume: number;
   updateLocationSettings: (settings: LocationSettings) => Promise<void>;
   updateStartAtLogin: (enabled: boolean) => Promise<void>;
   updateShowMiniWidget: (enabled: boolean) => Promise<void>;
@@ -53,6 +54,7 @@ interface SettingsContextType {
   updateShowPreAdhan: (enabled: boolean) => Promise<void>;
   updatePreAdhanMinutes: (minutes: number) => Promise<void>;
   updateShowDuaWidget: (enabled: boolean) => Promise<void>;
+  updateWidgetsVolume: (volume: number) => Promise<void>;
 }
 
 const SettingsContext = createContext<SettingsContextType | null>(null);
@@ -86,6 +88,7 @@ export const SettingsProvider = ({
   const [showPreAdhan, setShowPreAdhan] = useState(true);
   const [preAdhanMinutes, setPreAdhanMinutes] = useState(15);
   const [showDuaWidget, setShowDuaWidget] = useState(true);
+  const [widgetsVolume, setWidgetsVolume] = useState(100);
   const [loading, setLoading] = useState(true);
 
   const loadSettings = useCallback(async () => {
@@ -113,6 +116,7 @@ export const SettingsProvider = ({
         savedShowPreAdhan,
         savedPreAdhanMinutes,
         savedShowDua,
+        savedWidgetsVolume,
       ] = await Promise.all([
         window.ipc.invoke("store-get", "location-settings"),
         window.ipc.invoke("store-get", "start-at-login"),
@@ -131,6 +135,7 @@ export const SettingsProvider = ({
         window.ipc.invoke("store-get", "show-pre-adhan"),
         window.ipc.invoke("store-get", "pre-adhan-minutes"),
         window.ipc.invoke("store-get", "dua-widget-enabled"),
+        window.ipc.invoke("store-get", "widgets-volume"),
       ]);
 
       if (savedLoc) setLocationSettings(savedLoc as LocationSettings);
@@ -198,6 +203,10 @@ export const SettingsProvider = ({
 
       if (savedShowDua !== undefined) setShowDuaWidget(!!savedShowDua);
       else window.ipc.invoke("store-set", "dua-widget-enabled", true);
+
+      if (savedWidgetsVolume !== undefined)
+        setWidgetsVolume(Number(savedWidgetsVolume));
+      else window.ipc.invoke("store-set", "widgets-volume", 100);
     } catch (err) {
       console.error("Failed to load settings:", err);
     } finally {
@@ -267,6 +276,9 @@ export const SettingsProvider = ({
           break;
         case "dua-widget-enabled":
           setShowDuaWidget(val);
+          break;
+        case "widgets-volume":
+          setWidgetsVolume(val);
           break;
       }
     };
@@ -418,6 +430,14 @@ export const SettingsProvider = ({
     }
   }, []);
 
+  const updateWidgetsVolume = useCallback(async (volume: number) => {
+    setWidgetsVolume(volume);
+    if (window.ipc) {
+      await window.ipc.invoke("store-set", "widgets-volume", volume);
+      window.ipc.send("update-widgets-volume", volume);
+    }
+  }, []);
+
   const value = useMemo(
     () => ({
       locationSettings,
@@ -438,6 +458,7 @@ export const SettingsProvider = ({
       preAdhanMinutes,
       showDuaWidget,
       loading,
+      widgetsVolume,
       updateLocationSettings,
       updateStartAtLogin,
       updateShowMiniWidget,
@@ -455,6 +476,7 @@ export const SettingsProvider = ({
       updateShowPreAdhan,
       updatePreAdhanMinutes,
       updateShowDuaWidget,
+      updateWidgetsVolume,
     }),
     [
       locationSettings,
@@ -475,6 +497,7 @@ export const SettingsProvider = ({
       preAdhanMinutes,
       showDuaWidget,
       loading,
+      widgetsVolume,
       updateLocationSettings,
       updateStartAtLogin,
       updateShowMiniWidget,
@@ -492,6 +515,7 @@ export const SettingsProvider = ({
       updateShowPreAdhan,
       updatePreAdhanMinutes,
       updateShowDuaWidget,
+      updateWidgetsVolume,
     ],
   );
 

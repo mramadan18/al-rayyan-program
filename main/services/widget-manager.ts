@@ -61,7 +61,8 @@ export const showAdhanWidget = async (
   widgetWindow.setAlwaysOnTop(true, "screen-saver");
 
   const isProd = process.env.NODE_ENV === "production";
-  const query = `prayer=${encodeURIComponent(prayerName)}&audio=${encodeURIComponent(audioPath)}${targetTime ? `&targetTime=${targetTime}` : ""}`;
+  const volume = store.get("widgets-volume", 100) as number;
+  const query = `prayer=${encodeURIComponent(prayerName)}&audio=${encodeURIComponent(audioPath)}${targetTime ? `&targetTime=${targetTime}` : ""}&volume=${volume / 100}`;
 
   // Updated path to /widgets/adhan
   const url = isProd

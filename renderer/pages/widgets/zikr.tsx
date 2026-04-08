@@ -29,6 +29,7 @@ export default function ZikrWidget() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [duration, setDuration] = useState(DEFAULT_DURATION);
   const [isCopied, setIsCopied] = useState(false);
+  const [volume, setVolume] = useState(1);
 
   // Use refs to track timing state without causing re-renders
   const remainingTimeRef = useRef(DEFAULT_DURATION);
@@ -69,6 +70,7 @@ export default function ZikrWidget() {
       const audio = new Audio(randomZikr.audio);
       const params = new URLSearchParams(window.location.search);
       audio.muted = isMuted || params.get("silent") === "true";
+      audio.volume = volume;
       audioRef.current = audio;
 
       audio.onplay = () => setIsPlaying(true);
@@ -96,8 +98,12 @@ export default function ZikrWidget() {
     const params = new URLSearchParams(window.location.search);
     const silentMode = params.get("silent") === "true";
     const urlDuration = params.get("duration");
+    const urlVolume = params.get("volume")
+      ? parseFloat(params.get("volume") as string)
+      : 1;
 
     if (silentMode) setIsMuted(true);
+    setVolume(urlVolume);
 
     // Set duration from URL (converted to ms) or default
     const finalDuration = urlDuration
@@ -115,6 +121,7 @@ export default function ZikrWidget() {
     if (randomZikr.audio) {
       const audio = new Audio(randomZikr.audio);
       audio.muted = silentMode;
+      audio.volume = urlVolume;
       audioRef.current = audio;
 
       audio.onplay = () => setIsPlaying(true);
@@ -139,6 +146,26 @@ export default function ZikrWidget() {
       }
     };
   }, [handleClose]);
+
+  useEffect(() => {
+    if (!window.ipc) return;
+
+    const handleSettingsUpdated = (payload: { key: string; val: any }) => {
+      if (payload.key === "widgets-volume") {
+        const newVolume = payload.val / 100;
+        setVolume(newVolume);
+        if (audioRef.current) {
+          audioRef.current.volume = newVolume;
+        }
+      }
+    };
+
+    const removeListener = window.ipc.on(
+      "settings-updated",
+      handleSettingsUpdated,
+    );
+    return () => removeListener();
+  }, []);
 
   useEffect(() => {
     if (isHovered || isTimerPaused) return;

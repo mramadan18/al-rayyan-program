@@ -114,6 +114,7 @@ export const PlayerTimesProvider = ({
     updateSelectedAdhan,
     locationSettings,
     updateLocationSettings,
+    widgetsVolume,
   } = useSettings();
 
   // 1. Fetch prayer times
@@ -301,6 +302,7 @@ export const PlayerTimesProvider = ({
       }
 
       const audio = new Audio(path);
+      audio.volume = widgetsVolume / 100;
       audioRef.current = audio;
       audio.play().catch((err) => console.error("Audio playback error:", err));
 
@@ -323,17 +325,28 @@ export const PlayerTimesProvider = ({
       }
     };
 
+    const handleVolumeUpdate = (payload: { key: string; val: any }) => {
+      if (payload.key === "widgets-volume" && audioRef.current) {
+        audioRef.current.volume = payload.val / 100;
+      }
+    };
+
     const removePlayListener = window.ipc.on("play-audio", handlePlayAudio);
     const removeStopListener = window.ipc.on("stop-audio", handleStopAudio);
     const removeMuteListener = window.ipc.on("mute-audio", handleMuteAudio);
+    const removeVolumeListener = window.ipc.on(
+      "settings-updated",
+      handleVolumeUpdate,
+    );
 
     return () => {
       removePlayListener();
       removeStopListener();
       removeMuteListener();
+      removeVolumeListener();
       handleStopAudio();
     };
-  }, []);
+  }, [widgetsVolume]);
 
   // 4.5. Background Sync Listener
   useEffect(() => {
@@ -449,7 +462,9 @@ export const PlayerTimesProvider = ({
         } else if (
           nextPrayerIdx !== 0 &&
           ((activeIndex !== -1 && i <= activeIndex) ||
-            (activeIndex === -1 && i === prayerList.length - 1 && now < prayerList[0].date))
+            (activeIndex === -1 &&
+              i === prayerList.length - 1 &&
+              now < prayerList[0].date))
         ) {
           status = "passed";
         }

@@ -71,7 +71,7 @@ export const closeDuaWidget = () => {
 /**
  * Creates and animates the Dua widget window.
  */
-export const createDuaWidget = async (volume: number = 1) => {
+export const createDuaWidget = async (volume?: number) => {
   // Ensure only one instance is active
   closeDuaWidget();
 
@@ -80,6 +80,10 @@ export const createDuaWidget = async (volume: number = 1) => {
   if (!isEnabled) return;
 
   const isSilent = store.get("dua-silent", false) as boolean;
+  const finalVolume =
+    volume !== undefined
+      ? volume
+      : (store.get("widgets-volume", 100) as number) / 100;
 
   duaWidgetWindow = new BrowserWindow({
     width: WIDGET_WIDTH,
@@ -107,7 +111,7 @@ export const createDuaWidget = async (volume: number = 1) => {
     : `http://localhost:${process.argv[2]}/widgets/dua`;
 
   await duaWidgetWindow.loadURL(
-    `${baseUrl}?volume=${volume}&silent=${isSilent}`,
+    `${baseUrl}?volume=${finalVolume}&silent=${isSilent}`,
   );
 
   if (duaWidgetWindow.isDestroyed()) return;

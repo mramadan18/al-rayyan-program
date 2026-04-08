@@ -3,13 +3,15 @@ import {
   RotateCcw,
   RefreshCw,
   Download,
-  CheckCircle2,
+  Volume2,
+  VolumeX,
 } from "lucide-react";
 import { SettingsSection } from "./SettingsSection";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
+import { Slider } from "@/components/ui/slider";
 import { useSettings } from "@/contexts/settings-context";
 import { useAutoUpdater } from "@/hooks/useAutoUpdater";
 import { toast } from "sonner";
@@ -23,9 +25,11 @@ export function SystemSettings() {
     updateStartAtLogin,
     updateShowMiniWidget,
     updateMiniWidgetSize,
+    widgetsVolume,
+    updateWidgetsVolume,
   } = useSettings();
 
-  const { status, checkForUpdate, updateInfo } = useAutoUpdater();
+  const { status, checkForUpdate } = useAutoUpdater();
 
   // Handle manual check feedback
   useEffect(() => {
@@ -101,6 +105,55 @@ export function SystemSettings() {
               className="h-8 w-8 text-muted-foreground hover:text-primary"
               onClick={() => updateMiniWidgetSize(1.0)}
               title="إعادة ضبط الحجم"
+            >
+              <RotateCcw className="w-4 h-4" />
+            </Button>
+          </div>
+        </div>
+
+        <Separator />
+
+        <div className="flex items-center justify-between">
+          <div className="space-y-0.5">
+            <Label>حجم صوت التنبيهات</Label>
+            <p className="text-xs text-muted-foreground">
+              التحكم في مستوى صوت الأذكار والأدعية والأذان
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-4 w-48">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 text-muted-foreground hover:text-primary"
+                onClick={() => updateWidgetsVolume(0)}
+                title={widgetsVolume === 0 ? "إلغاء كتم الصوت" : "كتم الصوت"}
+              >
+                {widgetsVolume === 0 ? (
+                  <VolumeX className="w-4 h-4" />
+                ) : (
+                  <Volume2 className="w-4 h-4" />
+                )}
+              </Button>
+              <Slider
+                dir="rtl"
+                min={0}
+                max={100}
+                step={2}
+                value={[widgetsVolume]}
+                onValueChange={(vals) => updateWidgetsVolume(vals[0])}
+                className="w-full"
+              />
+              <span className="text-xs font-mono w-10 text-center">
+                {widgetsVolume}%
+              </span>
+            </div>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 text-muted-foreground hover:text-primary"
+              onClick={() => updateWidgetsVolume(100)}
+              title="إعادة ضبط الصوت"
             >
               <RotateCcw className="w-4 h-4" />
             </Button>

@@ -105,9 +105,11 @@ export const createZikrWidget = async () => {
     ? `app://./widgets/zikr`
     : `http://localhost:${process.argv[2]}/widgets/zikr`;
 
+  const volume = store.get("widgets-volume", 100) as number;
+
   // Pass duration in seconds to the renderer
   await zikrWidgetWindow.loadURL(
-    `${baseUrl}?silent=${isSilent}&duration=${duration}`,
+    `${baseUrl}?silent=${isSilent}&duration=${duration}&volume=${volume / 100}`,
   );
 
   if (zikrWidgetWindow.isDestroyed()) return;

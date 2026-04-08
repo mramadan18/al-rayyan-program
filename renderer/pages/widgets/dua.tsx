@@ -13,6 +13,7 @@ export default function DuaWidget() {
   const [isHovered, setIsHovered] = useState(false);
   const [isPinned, setIsPinned] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
+  const [volume, setVolume] = useState(1);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const isHoveredRef = useRef(false);
   const isPinnedRef = useRef(false);
@@ -51,6 +52,7 @@ export default function DuaWidget() {
       : 1;
 
     if (silentMode) setIsMuted(true);
+    setVolume(volume);
 
     const audio = new Audio("/audio/after-adhan.mp3");
     audio.volume = volume;
@@ -88,6 +90,26 @@ export default function DuaWidget() {
       audio.pause();
     };
   }, [router.query, handleClose, tryClose]);
+
+  useEffect(() => {
+    if (!window.ipc) return;
+
+    const handleSettingsUpdated = (payload: { key: string; val: any }) => {
+      if (payload.key === "widgets-volume") {
+        const newVolume = payload.val / 100;
+        setVolume(newVolume);
+        if (audioRef.current) {
+          audioRef.current.volume = newVolume;
+        }
+      }
+    };
+
+    const removeListener = window.ipc.on(
+      "settings-updated",
+      handleSettingsUpdated,
+    );
+    return () => removeListener();
+  }, []);
 
   // When mouse leaves, try to close (if audio already ended)
   const handleMouseLeave = useCallback(() => {
